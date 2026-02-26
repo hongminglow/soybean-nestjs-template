@@ -20,6 +20,7 @@ declare module "@elegant-router/types" {
     "403": "/403";
     "404": "/404";
     "500": "/500";
+    "about": "/about";
     "access-key": "/access-key";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
@@ -66,6 +67,7 @@ declare module "@elegant-router/types" {
     | "403"
     | "404"
     | "500"
+    | "about"
     | "access-key"
     | "home"
     | "iframe-page"
@@ -93,6 +95,7 @@ declare module "@elegant-router/types" {
     | "500"
     | "iframe-page"
     | "login"
+    | "about"
     | "access-key"
     | "home"
     | "log_login"

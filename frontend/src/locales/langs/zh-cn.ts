@@ -161,6 +161,7 @@ const local: App.I18n.Schema = {
     403: '无权限',
     404: '页面不存在',
     500: '服务器错误',
+    about: '关于',
     'iframe-page': '外链页面',
     home: '首页',
     manage: '系统管理',

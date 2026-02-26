@@ -1,7 +1,7 @@
 import { defineConfig } from '@soybeanjs/eslint-config';
 
 export default defineConfig(
-  { vue: true, unocss: true },
+  { vue: true },
   {
     rules: {
       'vue/multi-word-component-names': [
@@ -17,8 +17,7 @@ export default defineConfig(
           registeredComponentsOnly: false,
           ignores: ['/^icon-/']
         }
-      ],
-      'unocss/order-attributify': 'off'
+      ]
     }
   }
 );

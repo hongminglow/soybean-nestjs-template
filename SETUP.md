@@ -261,7 +261,62 @@ If your endpoint should be protected, remove `@Public()` and add the same authz 
 
 ---
 
-## 9) Troubleshooting
+## 9) How to Add a Frontend Route (Example: `/about`)
+
+This project uses `elegant-router` (file-based route generation).
+
+### Step 1: Create the page file
+
+Create:
+
+- `frontend/src/views/about/index.vue`
+
+Once this file exists, `elegant-router` can generate route metadata for `/about`.
+
+### Step 2: Add route i18n title
+
+Update route labels:
+
+- `frontend/src/locales/langs/en-us.ts` → add `route.about`
+- `frontend/src/locales/langs/zh-cn.ts` → add `route.about`
+
+### Step 3: Generate route artifacts
+
+From repo root:
+
+```bash
+pnpm -C frontend run gen-route
+```
+
+This updates generated files under:
+
+- `frontend/src/router/elegant/imports.ts`
+- `frontend/src/router/elegant/routes.ts`
+- `frontend/src/router/elegant/transform.ts`
+
+### Step 4: Type-check and run
+
+```bash
+pnpm -C frontend run typecheck
+pnpm -C frontend run dev
+```
+
+These scripts come from `frontend/package.json`:
+
+- `gen-route`: regenerate route map
+- `typecheck`: `vue-tsc --noEmit --skipLibCheck`
+- `dev`: run Vite in test mode
+
+### Step 5: Dynamic route mode note
+
+Current default is `VITE_AUTH_ROUTE_MODE=dynamic` (`frontend/.env`).
+
+That means authenticated menu routes come from backend APIs (`/menu/getUserRoutes`).
+So if you want `/about` to appear in sidebar menus for logged-in users, also add corresponding menu/route data in backend.
+
+---
+
+## 10) Troubleshooting
 
 ### A) `Cannot connect to database`
 
@@ -298,7 +353,7 @@ If `9527` is occupied, Vite auto-selects next free port (e.g. `9529`). Use the p
 
 ---
 
-## 10) Full Docker (Optional)
+## 11) Full Docker (Optional)
 
 Run all services via Docker:
 
