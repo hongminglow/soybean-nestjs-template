@@ -314,6 +314,49 @@ Current default is `VITE_AUTH_ROUTE_MODE=dynamic` (`frontend/.env`).
 That means authenticated menu routes come from backend APIs (`/menu/getUserRoutes`).
 So if you want `/about` to appear in sidebar menus for logged-in users, also add corresponding menu/route data in backend.
 
+### Step 6: Dynamic RBAC setup for new route (example: `manage_sms-config`)
+
+In this project, adding frontend route files alone is **not enough** for sidebar visibility when route mode is dynamic.
+
+You must complete all 3 mappings below:
+
+1. **Frontend route exists**
+
+- Example route name: `manage_sms-config`
+- Example path: `/manage/sms-config`
+- Example component key: `view.manage_sms-config`
+
+2. **Backend menu exists (`sys_menu`)**
+
+- Add menu record with the same `routeName`, `routePath`, and `component`
+- Parent menu should be `manage` (`pid` of manage menu)
+
+3. **Role-menu mapping exists (`sys_role_menu`)**
+
+- Assign that menu ID to target role(s), for example `ROLE_SUPER`
+- Only roles with this mapping will see the menu from `/authorization/getUserRoutes`
+
+Then assign user to role (`sys_user_role`), log out, and log in again to refresh role cache.
+
+You can do assignment from UI:
+
+- Manage → Role → Menu Auth (assign route/menu to role)
+- Manage → Role → User assignment (bind user to role)
+
+Or by API:
+
+- `POST /v1/authorization/assignRoutes`
+- `POST /v1/authorization/assignUsers`
+
+For seeded environments, this repository now includes `manage_sms-config` menu seed and default mapping to `ROLE_SUPER`.
+
+Apply/update seed data:
+
+```bash
+cd backend
+npx prisma db seed
+```
+
 ---
 
 ## 10) Troubleshooting

@@ -34,6 +34,16 @@ export type UserRoute = {
 export class MenuService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async syncMenuIdSequence(): Promise<void> {
+    await this.prisma.$executeRawUnsafe(`
+      SELECT setval(
+        pg_get_serial_sequence('sys_menu', 'id'),
+        COALESCE((SELECT MAX(id) FROM sys_menu), 1),
+        true
+      )
+    `);
+  }
+
   async getAllMenus() {
     return this.prisma.sysMenu.findMany();
   }
@@ -72,6 +82,8 @@ export class MenuService {
         throw new BadRequestException('Parent menu not found.');
       }
     }
+
+    await this.syncMenuIdSequence();
 
     await this.prisma.sysMenu.create({
       data: {

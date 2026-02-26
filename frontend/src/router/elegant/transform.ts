@@ -177,6 +177,7 @@ const routeMap: RouteMap = {
   "manage": "/manage",
   "manage_menu": "/manage/menu",
   "manage_role": "/manage/role",
+  "manage_sms": "/manage/sms",
   "manage_user": "/manage/user",
   "manage_user-detail": "/manage/user-detail/:id"
 };

@@ -95,21 +95,40 @@ export class UserService {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(data.password, salt);
 
-    await this.prisma.sysUser.create({
-      data: {
-        id: UlidGenerator.generate(),
-        username: data.username,
-        nickName: data.nickName,
-        password: hashedPassword,
-        domain: data.domain,
-        status: Status.ENABLED,
-        avatar: data.avatar,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        createdAt: new Date(),
-        createdBy: data.uid,
-      },
+    const defaultRole = await this.prisma.sysRole.findFirst({
+      where: { code: 'ROLE_USER', status: Status.ENABLED },
+      select: { id: true },
     });
+
+    if (!defaultRole) {
+      throw new NotFoundException('Default role ROLE_USER does not exist.');
+    }
+
+    const userId = UlidGenerator.generate();
+
+    await this.prisma.$transaction([
+      this.prisma.sysUser.create({
+        data: {
+          id: userId,
+          username: data.username,
+          nickName: data.nickName,
+          password: hashedPassword,
+          domain: data.domain,
+          status: Status.ENABLED,
+          avatar: data.avatar,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          createdAt: new Date(),
+          createdBy: data.uid,
+        },
+      }),
+      this.prisma.sysUserRole.create({
+        data: {
+          userId,
+          roleId: defaultRole.id,
+        },
+      }),
+    ]);
   }
 
   async updateUser(data: {

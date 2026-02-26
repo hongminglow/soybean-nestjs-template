@@ -150,6 +150,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'manage_sms',
+        path: '/manage/sms',
+        component: 'view.manage_sms',
+        meta: {
+          title: 'manage_sms',
+          i18nKey: 'route.manage_sms'
+        }
+      },
+      {
         name: 'manage_user',
         path: '/manage/user',
         component: 'view.manage_user',

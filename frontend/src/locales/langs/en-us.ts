@@ -169,6 +169,7 @@ const local: App.I18n.Schema = {
     'manage_user-detail': 'User Detail',
     manage_role: 'Role Manage',
     manage_menu: 'Menu Manage',
+    manage_sms: 'SMS Config Manage',
     'access-key': 'AccessKey',
     log: 'Log',
     log_login: 'Login Log',
@@ -368,6 +369,33 @@ const local: App.I18n.Schema = {
         iconType: {
           iconify: 'Iconify Icon',
           local: 'Local Icon'
+        }
+      },
+      sms: {
+        config: {
+          title: 'SMS Content Configuration',
+          tip: 'Standard SMS (GSM) only supports plain text. Formatting like bold or italic is not supported by mobile carriers.',
+          senderId: 'Sender ID (Alpha Tag)',
+          senderIdPlaceholder: 'Enter Sender Name (e.g. BRANDNAME)',
+          template: 'Message Template',
+          templatePlaceholder: 'Enter your message template here...',
+          charCount: '{count} characters ({segments} SMS segments)',
+          charCountSingle: '{count} characters ({segments} SMS segment)',
+          quickInsert: 'Quick Insert Variables',
+          saveConfig: 'Save Configuration',
+          phonePreview: 'Phone Preview',
+          saveSuccess: 'SMS configuration saved successfully!',
+          variables: {
+            otp: 'OTP Code',
+            expiry: 'Expiry Time',
+            brand: 'Brand Name'
+          },
+          mock: {
+            sender: 'Sender',
+            placeholder: 'Type something to see preview...',
+            time: 'Today 9:41 AM',
+            input: 'Text Message'
+          }
         }
       }
     }
