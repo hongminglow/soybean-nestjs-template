@@ -18,7 +18,6 @@ import config, {
   redisRegToken,
 } from '@lib/config';
 import { ISecurityConfig, securityRegToken } from '@lib/config/security.config';
-import { GlobalCqrsModule } from '@lib/global/global.module';
 import { SharedModule } from '@lib/global/shared.module';
 import { AuthZModule, AUTHZ_ENFORCER, PrismaAdapter } from '@lib/infra/casbin';
 import { AllExceptionsFilter } from '@lib/infra/filters/all-exceptions.filter';
@@ -147,8 +146,6 @@ class ThrottlerStorageAdapter implements ThrottlerStorage {
         };
       },
     }),
-
-    GlobalCqrsModule,
 
     ApiModule,
 

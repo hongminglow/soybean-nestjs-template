@@ -1,39 +1,67 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
-import { AccessKeyInfraModule } from '@app/base-system/infra/bounded-contexts/access-key/access_key.infra.module';
-import { ApiEndpointInfraModule } from '@app/base-system/infra/bounded-contexts/api-endpoint/api-endpoint/api-endpoint.infra.module';
-import { IamModule } from '@app/base-system/infra/bounded-contexts/iam/authentication/iam.module';
-import { DomainInfraModule } from '@app/base-system/infra/bounded-contexts/iam/domain/domain-infra.module';
-import { MenuInfraModule } from '@app/base-system/infra/bounded-contexts/iam/menu/menu.infra.module';
-import { RoleInfraModule } from '@app/base-system/infra/bounded-contexts/iam/role/role.infra.module';
-import { TokensInfraModule } from '@app/base-system/infra/bounded-contexts/iam/tokens/tokens.infra.module';
-import { LoginLogInfraModule } from '@app/base-system/infra/bounded-contexts/log-audit/login-log/login-log.infra.module';
-import { OperationLogInfraModule } from '@app/base-system/infra/bounded-contexts/log-audit/operation-log/operation-log.infra.module';
+import { ISecurityConfig, securityRegToken } from '@lib/config/security.config';
 
-import { Controllers as AccessKeyRest } from './access-key/rest';
-import { Controllers as EndpointRest } from './endpoint/rest';
-import { Controllers as IamRest } from './iam/rest';
-import { Controllers as LoginLogRest } from './log-audit/login-log/rest';
-import { Controllers as OperationLogRest } from './log-audit/operation-log/rest';
+import { Controllers as AccessKeyControllers } from './access-key/rest';
+import { Controllers as EndpointControllers } from './endpoint/rest';
+import { Controllers as IamControllers } from './iam/rest';
+import { Controllers as LoginLogControllers } from './log-audit/login-log/rest';
+import { Controllers as OperationLogControllers } from './log-audit/operation-log/rest';
+import {
+  AccessKeyService,
+  AuthorizationService,
+  AuthService,
+  DomainService,
+  EndpointService,
+  LoginLogService,
+  MenuService,
+  OperationLogService,
+  RoleService,
+  UserService,
+} from '../services';
+
+const AllControllers = [
+  ...IamControllers,
+  ...EndpointControllers,
+  ...AccessKeyControllers,
+  ...LoginLogControllers,
+  ...OperationLogControllers,
+];
+
+const AllServices = [
+  UserService,
+  AuthService,
+  AuthorizationService,
+  RoleService,
+  DomainService,
+  MenuService,
+  EndpointService,
+  LoginLogService,
+  OperationLogService,
+  AccessKeyService,
+];
 
 @Module({
   imports: [
-    IamModule,
-    MenuInfraModule,
-    RoleInfraModule,
-    DomainInfraModule,
-    ApiEndpointInfraModule,
-    OperationLogInfraModule,
-    LoginLogInfraModule,
-    TokensInfraModule,
-    AccessKeyInfraModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const { jwtSecret, jwtExpiresIn } = configService.get<ISecurityConfig>(
+          securityRegToken,
+          { infer: true },
+        );
+        return {
+          secret: jwtSecret,
+          signOptions: { expiresIn: `${jwtExpiresIn}s` },
+        };
+      },
+    }),
   ],
-  controllers: [
-    ...IamRest,
-    ...EndpointRest,
-    ...LoginLogRest,
-    ...OperationLogRest,
-    ...AccessKeyRest,
-  ],
+  controllers: AllControllers,
+  providers: AllServices,
+  exports: AllServices,
 })
 export class ApiModule {}

@@ -11,9 +11,17 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { ApiEndpoint } from '@app/base-system/lib/bounded-contexts/api-endpoint/api-endpoint/domain/api-endpoint.model';
-
 import { EVENT_API_ROUTE_COLLECTED } from '@lib/constants/event-emitter-token.constant';
+
+interface ApiEndpoint {
+  id: string;
+  path: string;
+  method: string;
+  action: string;
+  resource: string;
+  controller: string;
+  summary: string;
+}
 import {
   FUNCTION,
   METHOD,
@@ -133,17 +141,15 @@ export class ApiDataService implements OnModuleInit {
         )
         .digest('hex');
 
-      endpoints.push(
-        new ApiEndpoint(
-          id,
-          cleanedPath,
-          RequestMethod[methodType],
-          action,
-          resource,
-          controllerName,
-          summary,
-        ),
-      );
+      endpoints.push({
+        id,
+        path: cleanedPath,
+        method: RequestMethod[methodType],
+        action,
+        resource,
+        controller: controllerName,
+        summary,
+      });
     });
   }
 }

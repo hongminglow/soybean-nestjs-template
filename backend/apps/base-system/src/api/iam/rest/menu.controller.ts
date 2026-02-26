@@ -3,169 +3,103 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
+  Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { MenuRoute } from '@app/base-system/lib/bounded-contexts/iam/menu/application/dto/route.dto';
-import { MenuService } from '@app/base-system/lib/bounded-contexts/iam/menu/application/service/menu.service';
-import { MenuCreateCommand } from '@app/base-system/lib/bounded-contexts/iam/menu/commands/menu-create.command';
-import { MenuDeleteCommand } from '@app/base-system/lib/bounded-contexts/iam/menu/commands/menu-delete.command';
-import { MenuUpdateCommand } from '@app/base-system/lib/bounded-contexts/iam/menu/commands/menu-update.command';
-import { MenuTreeProperties } from '@app/base-system/lib/bounded-contexts/iam/menu/domain/menu.read.model';
-import { MenuIdsByRoleIdAndDomainQuery } from '@app/base-system/lib/bounded-contexts/iam/menu/queries/menu-ids.by-role_id&domain.query';
-import { MenusQuery } from '@app/base-system/lib/bounded-contexts/iam/menu/queries/menus.query';
-import { MenusTreeQuery } from '@app/base-system/lib/bounded-contexts/iam/menu/queries/menus.tree.query';
-
+import { AuthZGuard, AuthActionVerb, UsePermissions } from '@lib/infra/casbin';
 import { Public } from '@lib/infra/decorators/public.decorator';
 import { ApiRes } from '@lib/infra/rest/res.response';
+import { IAuthentication } from '@lib/typings/global';
 
+import { MenuService } from '../../../services/menu.service';
 import { RouteCreateDto, RouteUpdateDto } from '../dto/route.dto';
 
 @ApiTags('Menu - Module')
-@Controller('route')
+@Controller('menu')
 export class MenuController {
-  constructor(
-    private readonly queryBus: QueryBus,
-    private readonly commandBus: CommandBus,
-    private readonly menuService: MenuService,
-  ) {}
+  constructor(private readonly menuService: MenuService) {}
 
-  @Public()
-  @Get('getConstantRoutes')
-  @ApiOperation({
-    summary: 'Get constant routes',
-    description: 'Retrieve all constant routes available in the system.',
-  })
-  async getConstantRoutes(): Promise<ApiRes<MenuRoute[]>> {
-    const result = await this.menuService.getConstantRoutes();
-    return ApiRes.success(result);
-  }
-
-  @Get()
-  @ApiOperation({
-    summary: 'Routes',
-  })
-  async routes() {
-    const result = await this.queryBus.execute<
-      MenusQuery,
-      MenuTreeProperties[]
-    >(new MenusQuery());
+  @Get('all')
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'menu', action: AuthActionVerb.READ })
+  @ApiOperation({ summary: 'Get all menus' })
+  async getAllMenus(): Promise<ApiRes<any>> {
+    const result = await this.menuService.getAllMenus();
     return ApiRes.success(result);
   }
 
   @Get('tree')
-  @ApiOperation({
-    summary: 'Routes',
-  })
-  async treeRoute() {
-    const result = await this.queryBus.execute<
-      MenusTreeQuery,
-      MenuTreeProperties[]
-    >(new MenusTreeQuery());
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'menu', action: AuthActionVerb.READ })
+  @ApiOperation({ summary: 'Get menu tree' })
+  async getMenusTree(
+    @Query('constant') constant?: string,
+  ): Promise<ApiRes<any>> {
+    const isConstant = constant !== undefined ? constant === 'true' : undefined;
+    const result = await this.menuService.getMenusTree(isConstant);
     return ApiRes.success(result);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a New Route' })
-  @ApiResponse({
-    status: 201,
-    description: 'The route has been successfully created.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async createRoute(
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'menu', action: AuthActionVerb.CREATE })
+  @ApiOperation({ summary: 'Create a new menu' })
+  async createMenu(
     @Body() dto: RouteCreateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
-    await this.commandBus.execute(
-      new MenuCreateCommand(
-        dto.menuName,
-        dto.menuType,
-        dto.iconType,
-        dto.icon,
-        dto.routeName,
-        dto.routePath,
-        dto.component,
-        dto.pathParam ?? null,
-        dto.status,
-        dto.activeMenu,
-        dto.hideInMenu,
-        dto.pid,
-        dto.order,
-        dto.i18nKey,
-        dto.keepAlive,
-        dto.constant,
-        dto.href,
-        dto.multiTab,
-        req.user.uid,
-      ),
-    );
+    const user: IAuthentication = req.user;
+    await this.menuService.createMenu({ ...dto, uid: user.uid });
     return ApiRes.ok();
   }
 
   @Put()
-  @ApiOperation({ summary: 'Update a Route' })
-  @ApiResponse({
-    status: 201,
-    description: 'The route has been successfully updated.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async updateRoute(
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'menu', action: AuthActionVerb.UPDATE })
+  @ApiOperation({ summary: 'Update menu' })
+  async updateMenu(
     @Body() dto: RouteUpdateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
-    await this.commandBus.execute(
-      new MenuUpdateCommand(
-        dto.id,
-        dto.menuName,
-        dto.menuType,
-        dto.iconType,
-        dto.icon,
-        dto.routeName,
-        dto.routePath,
-        dto.component,
-        dto.pathParam ?? null,
-        dto.status,
-        dto.activeMenu,
-        dto.hideInMenu,
-        dto.pid,
-        dto.order,
-        dto.i18nKey,
-        dto.keepAlive,
-        dto.constant,
-        dto.href,
-        dto.multiTab,
-        req.user.uid,
-      ),
+    const user: IAuthentication = req.user;
+    await this.menuService.updateMenu({ ...dto, uid: user.uid });
+    return ApiRes.ok();
+  }
+
+  @Delete()
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'menu', action: AuthActionVerb.DELETE })
+  @ApiOperation({ summary: 'Delete menu by ID' })
+  async deleteMenu(@Query('id') id: string): Promise<ApiRes<null>> {
+    await this.menuService.deleteMenu(Number(id));
+    return ApiRes.ok();
+  }
+
+  @Get('getConstantRoutes')
+  @Public()
+  @ApiOperation({ summary: 'Get constant routes' })
+  async getConstantRoutes(): Promise<ApiRes<any>> {
+    const result = await this.menuService.getConstantRoutes();
+    return ApiRes.success(result);
+  }
+
+  @Get('getMenuIdsByRoleIdAndDomain')
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'menu', action: AuthActionVerb.READ })
+  @ApiOperation({ summary: 'Get menu IDs by role and domain' })
+  async getMenuIdsByRoleIdAndDomain(
+    @Query('roleId') roleId: string,
+    @Query('domain') domain: string,
+  ): Promise<ApiRes<any>> {
+    const result = await this.menuService.getMenuIdsByRoleIdAndDomain(
+      roleId,
+      domain,
     );
-    return ApiRes.ok();
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a Route' })
-  @ApiResponse({
-    status: 201,
-    description: 'The route has been successfully deleted.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async deleteRoute(@Param('id') id: number): Promise<ApiRes<null>> {
-    await this.commandBus.execute(new MenuDeleteCommand(id));
-    return ApiRes.ok();
-  }
-
-  @Get('auth-route/:roleId')
-  @ApiOperation({
-    summary: 'Authorized Routes',
-  })
-  async authRoute(@Param('roleId') roleId: string, @Request() req: any) {
-    const result = await this.queryBus.execute<
-      MenuIdsByRoleIdAndDomainQuery,
-      number[]
-    >(new MenuIdsByRoleIdAndDomainQuery(roleId, req.user.domain));
     return ApiRes.success(result);
   }
 }

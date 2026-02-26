@@ -10,8 +10,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-import { OperationLogProperties } from '@app/base-system/lib/bounded-contexts/log-audit/operation-log/domain/operation-log.read.model';
-
 import { EVENT_OPERATION_LOG_CREATED } from '@lib/constants/event-emitter-token.constant';
 import { USER_AGENT } from '@lib/constants/rest.constant';
 import { LOG_KEY } from '@lib/infra/decorators/log.decorator';
@@ -47,7 +45,7 @@ export class LogInterceptor implements NestInterceptor {
       tap((data) => {
         const endTime = new Date();
         const duration = endTime.getTime() - startTime.getTime();
-        const operationLog: OperationLogProperties = {
+        const operationLog = {
           userId: uid,
           username: username,
           domain: domain,

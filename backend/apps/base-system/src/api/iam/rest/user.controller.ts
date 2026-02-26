@@ -3,121 +3,91 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { UserCreateCommand } from '@app/base-system/lib/bounded-contexts/iam/authentication/commands/user-create.command';
-import { UserDeleteCommand } from '@app/base-system/lib/bounded-contexts/iam/authentication/commands/user-delete.command';
-import { UserUpdateCommand } from '@app/base-system/lib/bounded-contexts/iam/authentication/commands/user-update.command';
-import {
-  UserProperties,
-  UserReadModel,
-} from '@app/base-system/lib/bounded-contexts/iam/authentication/domain/user.read.model';
-import { PageUsersQuery } from '@app/base-system/lib/bounded-contexts/iam/authentication/queries/page-users.query';
-
-import { ApiResponseDoc } from '@lib/infra/decorators/api-result.decorator';
+import { AuthZGuard, AuthActionVerb, UsePermissions } from '@lib/infra/casbin';
 import { ApiRes } from '@lib/infra/rest/res.response';
-import { PaginationResult } from '@lib/shared/prisma/pagination';
+import { IAuthentication } from '@lib/typings/global';
 
+import { UserService } from '../../../services/user.service';
 import { PageUsersDto } from '../dto/page-users.dto';
 import { UserCreateDto, UserUpdateDto } from '../dto/user.dto';
 
 @ApiTags('User - Module')
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly queryBus: QueryBus,
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  @Get()
-  @ApiOperation({
-    summary: 'Retrieve Paginated Users',
-  })
-  @ApiResponseDoc({ type: UserReadModel, isPaged: true })
-  async page(
-    @Query() queryDto: PageUsersDto,
-  ): Promise<ApiRes<PaginationResult<UserProperties>>> {
-    const query = new PageUsersQuery({
-      current: queryDto.current,
-      size: queryDto.size,
-      username: queryDto.username,
-      nickName: queryDto.nickName,
-      status: queryDto.status,
+  @Get('page')
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'user', action: AuthActionVerb.READ })
+  @ApiOperation({ summary: 'Get paginated users' })
+  async pageUsers(@Query() dto: PageUsersDto): Promise<ApiRes<any>> {
+    const result = await this.userService.pageUsers({
+      current: dto.current,
+      size: dto.size,
+      username: dto.username,
+      nickName: dto.nickName,
+      status: dto.status,
     });
-    const result = await this.queryBus.execute<
-      PageUsersQuery,
-      PaginationResult<UserProperties>
-    >(query);
     return ApiRes.success(result);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a New User' })
-  @ApiResponse({
-    status: 201,
-    description: 'The user has been successfully created.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'user', action: AuthActionVerb.CREATE })
+  @ApiOperation({ summary: 'Create a new user' })
   async createUser(
     @Body() dto: UserCreateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
-    await this.commandBus.execute(
-      new UserCreateCommand(
-        dto.username,
-        dto.password,
-        dto.domain,
-        dto.nickName,
-        dto.avatar,
-        dto.email,
-        dto.phoneNumber,
-        req.user.uid,
-      ),
-    );
+    const user: IAuthentication = req.user;
+    await this.userService.createUser({
+      username: dto.username,
+      password: dto.password,
+      domain: dto.domain,
+      nickName: dto.nickName,
+      avatar: dto.avatar,
+      email: dto.email,
+      phoneNumber: dto.phoneNumber,
+      uid: user.uid,
+    });
     return ApiRes.ok();
   }
 
   @Put()
-  @ApiOperation({ summary: 'Update a User' })
-  @ApiResponse({
-    status: 201,
-    description: 'The user has been successfully updated.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'user', action: AuthActionVerb.UPDATE })
+  @ApiOperation({ summary: 'Update user' })
   async updateUser(
     @Body() dto: UserUpdateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
-    await this.commandBus.execute(
-      new UserUpdateCommand(
-        dto.id,
-        dto.username,
-        dto.nickName,
-        dto.avatar,
-        dto.email,
-        dto.phoneNumber,
-        req.user.uid,
-      ),
-    );
+    const user: IAuthentication = req.user;
+    await this.userService.updateUser({
+      id: dto.id,
+      username: dto.username,
+      nickName: dto.nickName,
+      avatar: dto.avatar,
+      email: dto.email,
+      phoneNumber: dto.phoneNumber,
+      uid: user.uid,
+    });
     return ApiRes.ok();
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a User' })
-  @ApiResponse({
-    status: 201,
-    description: 'The user has been successfully deleted.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async deleteUser(@Param('id') id: string): Promise<ApiRes<null>> {
-    await this.commandBus.execute(new UserDeleteCommand(id));
+  @Delete()
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'user', action: AuthActionVerb.DELETE })
+  @ApiOperation({ summary: 'Delete user by ID' })
+  async deleteUser(@Query('id') id: string): Promise<ApiRes<null>> {
+    await this.userService.deleteUser(id);
     return ApiRes.ok();
   }
 }

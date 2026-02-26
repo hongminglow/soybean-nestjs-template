@@ -3,119 +3,89 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { RoleCreateCommand } from '@app/base-system/lib/bounded-contexts/iam/role/commands/role-create.command';
-import { RoleDeleteCommand } from '@app/base-system/lib/bounded-contexts/iam/role/commands/role-delete.command';
-import { RoleUpdateCommand } from '@app/base-system/lib/bounded-contexts/iam/role/commands/role-update.command';
-import {
-  RoleProperties,
-  RoleReadModel,
-} from '@app/base-system/lib/bounded-contexts/iam/role/domain/role.read.model';
-import { PageRolesQuery } from '@app/base-system/lib/bounded-contexts/iam/role/queries/page-roles.query';
-
-import { ApiResponseDoc } from '@lib/infra/decorators/api-result.decorator';
+import { AuthZGuard, AuthActionVerb, UsePermissions } from '@lib/infra/casbin';
 import { ApiRes } from '@lib/infra/rest/res.response';
-import { PaginationResult } from '@lib/shared/prisma/pagination';
+import { IAuthentication } from '@lib/typings/global';
 
+import { RoleService } from '../../../services/role.service';
 import { PageRolesDto } from '../dto/page-roles.dto';
 import { RoleCreateDto, RoleUpdateDto } from '../dto/role.dto';
 
 @ApiTags('Role - Module')
 @Controller('role')
 export class RoleController {
-  constructor(
-    private readonly queryBus: QueryBus,
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly roleService: RoleService) {}
 
-  @Get()
-  @ApiOperation({
-    summary: 'Retrieve Paginated Roles',
-  })
-  @ApiResponseDoc({ type: RoleReadModel, isPaged: true })
-  async page(
-    @Query() queryDto: PageRolesDto,
-  ): Promise<ApiRes<PaginationResult<RoleProperties>>> {
-    const query = new PageRolesQuery({
-      current: queryDto.current,
-      size: queryDto.size,
-      code: queryDto.code,
-      name: queryDto.name,
-      status: queryDto.status,
+  @Get('page')
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'role', action: AuthActionVerb.READ })
+  @ApiOperation({ summary: 'Get paginated roles' })
+  async pageRoles(@Query() dto: PageRolesDto): Promise<ApiRes<any>> {
+    const result = await this.roleService.pageRoles({
+      current: dto.current,
+      size: dto.size,
+      code: dto.code,
+      name: dto.name,
+      status: dto.status,
     });
-    const result = await this.queryBus.execute<
-      PageRolesQuery,
-      PaginationResult<RoleProperties>
-    >(query);
     return ApiRes.success(result);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a New Role' })
-  @ApiResponse({
-    status: 201,
-    description: 'The role has been successfully created.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'role', action: AuthActionVerb.CREATE })
+  @ApiOperation({ summary: 'Create a new role' })
   async createRole(
     @Body() dto: RoleCreateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
-    await this.commandBus.execute(
-      new RoleCreateCommand(
-        dto.code,
-        dto.name,
-        dto.pid,
-        dto.status,
-        dto.description,
-        req.user.uid,
-      ),
-    );
+    const user: IAuthentication = req.user;
+    await this.roleService.createRole({
+      code: dto.code,
+      name: dto.name,
+      pid: dto.pid,
+      status: dto.status,
+      description: dto.description,
+      uid: user.uid,
+    });
     return ApiRes.ok();
   }
 
   @Put()
-  @ApiOperation({ summary: 'Update a Role' })
-  @ApiResponse({
-    status: 201,
-    description: 'The role has been successfully updated.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'role', action: AuthActionVerb.UPDATE })
+  @ApiOperation({ summary: 'Update role' })
   async updateRole(
     @Body() dto: RoleUpdateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
-    await this.commandBus.execute(
-      new RoleUpdateCommand(
-        dto.id,
-        dto.code,
-        dto.name,
-        dto.pid,
-        dto.status,
-        dto.description,
-        req.user.uid,
-      ),
-    );
+    const user: IAuthentication = req.user;
+    await this.roleService.updateRole({
+      id: dto.id,
+      code: dto.code,
+      name: dto.name,
+      pid: dto.pid,
+      status: dto.status,
+      description: dto.description,
+      uid: user.uid,
+    });
     return ApiRes.ok();
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a Role' })
-  @ApiResponse({
-    status: 201,
-    description: 'The role has been successfully deleted.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async deleteRole(@Param('id') id: string): Promise<ApiRes<null>> {
-    await this.commandBus.execute(new RoleDeleteCommand(id));
+  @Delete()
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'role', action: AuthActionVerb.DELETE })
+  @ApiOperation({ summary: 'Delete role by ID' })
+  async deleteRole(@Query('id') id: string): Promise<ApiRes<null>> {
+    await this.roleService.deleteRole(id);
     return ApiRes.ok();
   }
 }
