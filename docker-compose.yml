@@ -1,6 +1,7 @@
 services:
   # 添加数据库初始化服务
   db-init:
+    container_name: db-init
     build:
       context: backend/
     environment:
@@ -18,6 +19,7 @@ services:
       - soybean-admin
 
   frontend:
+    container_name: frontend
     build:
       context: frontend/
     # image: soybean-admin-frontend:1.2.7
@@ -32,6 +34,7 @@ services:
       - soybean-admin
 
   backend:
+    container_name: backend
     build:
       context: backend/
     # image: soybean-admin-backend:0.0.1
@@ -70,6 +73,7 @@ services:
     cpus: 2
 
   postgres:
+    container_name: postgres
     image: postgres:16.3
     environment:
       TZ: Asia/Shanghai
@@ -107,6 +111,7 @@ services:
       - soybean-admin
 
   redis:
+    container_name: redis
     image: redis/redis-stack:7.2.0-v11
     environment:
       TZ: Asia/Shanghai
