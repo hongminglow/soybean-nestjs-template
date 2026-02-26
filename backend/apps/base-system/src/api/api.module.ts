@@ -9,6 +9,7 @@ import { Controllers as EndpointControllers } from './endpoint/rest';
 import { Controllers as IamControllers } from './iam/rest';
 import { Controllers as LoginLogControllers } from './log-audit/login-log/rest';
 import { Controllers as OperationLogControllers } from './log-audit/operation-log/rest';
+import { Controllers as TestControllers } from './test/rest';
 import {
   AccessKeyService,
   AuthorizationService,
@@ -28,6 +29,7 @@ const AllControllers = [
   ...AccessKeyControllers,
   ...LoginLogControllers,
   ...OperationLogControllers,
+  ...TestControllers,
 ];
 
 const AllServices = [

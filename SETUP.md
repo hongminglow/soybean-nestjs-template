@@ -211,7 +211,57 @@ with header:
 
 ---
 
-## 8) Troubleshooting
+## 8) How to Add a New Handler (Example: `/v1/test`)
+
+Use this as a minimal backend API flow reference.
+
+### Step 1: Create a controller
+
+Create `backend/apps/base-system/src/api/test/rest/test.controller.ts`.
+
+Key points:
+
+- Add `@Controller('test')` so route becomes `/v1/test` (because global prefix is `/v1`)
+- Add `@Get()` for list query
+- Use `@Public()` if you want no token required
+- Reuse existing service (`UserService`) instead of querying DB directly
+
+### Step 2: Export controller from rest index
+
+Create `backend/apps/base-system/src/api/test/rest/index.ts`:
+
+- Export `Controllers = [TestController]`
+
+### Step 3: Register controller in API module
+
+Update `backend/apps/base-system/src/api/api.module.ts`:
+
+- Import `Controllers as TestControllers` from `./test/rest`
+- Spread `...TestControllers` into `AllControllers`
+
+### Step 4: Start/restart backend
+
+```bash
+cd backend
+pnpm start:dev
+```
+
+### Step 5: Verify endpoint
+
+Call:
+
+- `GET http://localhost:9528/v1/test`
+
+Expected:
+
+- `code: 200`
+- `data.records` contains seeded users
+
+If your endpoint should be protected, remove `@Public()` and add the same authz decorators used by other controllers.
+
+---
+
+## 9) Troubleshooting
 
 ### A) `Cannot connect to database`
 
@@ -248,7 +298,7 @@ If `9527` is occupied, Vite auto-selects next free port (e.g. `9529`). Use the p
 
 ---
 
-## 9) Full Docker (Optional)
+## 10) Full Docker (Optional)
 
 Run all services via Docker:
 
