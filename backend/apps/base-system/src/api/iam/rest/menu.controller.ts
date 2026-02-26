@@ -102,4 +102,15 @@ export class MenuController {
     );
     return ApiRes.success(result);
   }
+
+  @Get('isRouteExist')
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'menu', action: AuthActionVerb.READ })
+  @ApiOperation({ summary: 'Check whether route exists by routeName' })
+  async isRouteExist(
+    @Query('routeName') routeName: string,
+  ): Promise<ApiRes<boolean>> {
+    const result = await this.menuService.isRouteExist(routeName);
+    return ApiRes.success(result);
+  }
 }

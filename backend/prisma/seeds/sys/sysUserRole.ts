@@ -18,5 +18,5 @@ export const initSysUserRole = async () => {
     },
   ];
 
-  return prisma.sysUserRole.createMany({ data });
+  return prisma.sysUserRole.createMany({ data, skipDuplicates: true });
 };

@@ -16,5 +16,5 @@ export const initSysDomain = async () => {
     },
   ];
 
-  return prisma.sysDomain.createMany({ data });
+  return prisma.sysDomain.createMany({ data, skipDuplicates: true });
 };

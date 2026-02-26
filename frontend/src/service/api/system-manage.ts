@@ -3,7 +3,7 @@ import { request } from '../request';
 /** get role list */
 export function fetchGetRoleList(params?: Api.SystemManage.RoleSearchParams) {
   return request<Api.SystemManage.RoleList>({
-    url: '/role',
+    url: '/role/page',
     method: 'get',
     params
   });
@@ -15,58 +15,83 @@ export function fetchGetRoleList(params?: Api.SystemManage.RoleSearchParams) {
  * these roles are all enabled
  */
 export function fetchGetAllRoles() {
-  return request<Api.SystemManage.AllRole[]>({
-    url: '/systemManage/getAllRoles',
-    method: 'get'
+  return request<Api.SystemManage.RoleList>({
+    url: '/role/page',
+    method: 'get',
+    params: {
+      current: 1,
+      size: 999,
+      status: 'ENABLED'
+    }
+  }).then(response => {
+    if (response.error || !response.data) {
+      return response;
+    }
+
+    return {
+      ...response,
+      data: response.data.records,
+      error: null
+    };
   });
 }
 
 /** get user list */
 export function fetchGetUserList(params?: Api.SystemManage.UserSearchParams) {
   return request<Api.SystemManage.UserList>({
-    url: '/user',
+    url: '/user/page',
     method: 'get',
     params
   });
 }
 
 /** get menu list */
-export const fetchGetMenuList = () =>
-  request<Api.SystemManage.Menu[]>({
-    url: '/route',
+export async function fetchGetMenuList(): Promise<NaiveUI.FlatResponseData<Api.SystemManage.MenuList>> {
+  const response = await request<Api.SystemManage.Menu[]>({
+    url: '/menu/all',
     method: 'get'
-  })
-    .then(response => {
-      const menus = response.data || [];
-      return {
-        data: {
-          records: menus,
-          total: menus.length,
-          current: 1,
-          size: menus.length
-        },
-        error: null
-      };
-    })
-    .catch(error => {
-      return {
-        data: null,
-        error: error.message
-      };
-    });
+  });
+
+  if (response.error || !response.data) {
+    return response;
+  }
+
+  const menus = response.data;
+
+  return {
+    ...response,
+    data: {
+      records: menus,
+      total: menus.length,
+      current: 1,
+      size: menus.length || 10
+    },
+    error: null
+  };
+}
 
 /** get all pages */
 export function fetchGetAllPages() {
-  return request<string[]>({
-    url: '/systemManage/getAllPages',
+  return request<Api.SystemManage.Menu[]>({
+    url: '/menu/all',
     method: 'get'
+  }).then(response => {
+    if (response.error || !response.data) {
+      return response;
+    }
+
+    return {
+      ...response,
+      data: response.data.map(menu => menu.routeName).filter(Boolean),
+      error: null
+    };
   });
 }
 
 /** get menu tree */
 export function fetchGetMenuTree() {
   return request<Api.SystemManage.Menu[]>({
-    url: '/route/tree',
+    url: '/menu/tree',
     method: 'get'
   });
 }
@@ -112,8 +137,9 @@ export function updateRole(req: RoleModel) {
  */
 export function deleteRole(id: string) {
   return request({
-    url: `/role/${id}`,
-    method: 'delete'
+    url: '/role',
+    method: 'delete',
+    params: { id }
   });
 }
 
@@ -125,8 +151,12 @@ export function deleteRole(id: string) {
  */
 export function fetchGetRoleMenuIds(roleId: string) {
   return request<number[]>({
-    url: `/route/auth-route/${roleId}`,
-    method: 'get'
+    url: '/menu/getMenuIdsByRoleIdAndDomain',
+    method: 'get',
+    params: {
+      roleId,
+      domain: 'built-in'
+    }
   });
 }
 
@@ -138,7 +168,7 @@ export function fetchGetRoleMenuIds(roleId: string) {
  */
 export function fetchAssignRoutes(req: Api.SystemManage.RoleMenu) {
   return request<boolean>({
-    url: '/authorization/assign-routes',
+    url: '/authorization/assignRoutes',
     method: 'post',
     data: {
       ...req,
@@ -157,7 +187,7 @@ export function fetchAssignRoutes(req: Api.SystemManage.RoleMenu) {
  */
 export function fetchAssignPermission(req: Api.SystemManage.RolePermission) {
   return request<boolean>({
-    url: '/authorization/assign-permission',
+    url: '/authorization/assignPermission',
     method: 'post',
     data: {
       ...req,
@@ -198,7 +228,7 @@ export type RouteModel = Pick<
  */
 export function createRoute(req: RouteModel) {
   return request({
-    url: '/route',
+    url: '/menu',
     method: 'post',
     data: req
   });
@@ -212,7 +242,7 @@ export function createRoute(req: RouteModel) {
  */
 export function updateRoute(req: RouteModel) {
   return request({
-    url: '/route',
+    url: '/menu',
     method: 'put',
     data: req
   });
@@ -226,8 +256,9 @@ export function updateRoute(req: RouteModel) {
  */
 export function deleteRoute(id: number) {
   return request({
-    url: `/route/${id}`,
-    method: 'delete'
+    url: '/menu',
+    method: 'delete',
+    params: { id }
   });
 }
 
@@ -272,15 +303,16 @@ export function updateUser(req: UserModel) {
  */
 export function deleteUser(id: string) {
   return request({
-    url: `/user/${id}`,
-    method: 'delete'
+    url: '/user',
+    method: 'delete',
+    params: { id }
   });
 }
 
 /** get api-endpoint tree */
 export function fetchGetApiEndpointTree() {
   return request<Api.SystemManage.ApiEndpoint[]>({
-    url: '/api-endpoint/tree',
+    url: '/endpoint/tree',
     method: 'get'
   });
 }
@@ -293,8 +325,12 @@ export function fetchGetApiEndpointTree() {
  */
 export async function fetchGetRoleApiEndpoints(roleCode: string) {
   const response = await request<any[]>({
-    url: `/api-endpoint/auth-api-endpoint/${roleCode}`,
-    method: 'get'
+    url: '/endpoint/authApiEndpoint',
+    method: 'get',
+    params: {
+      roleCode,
+      domain: 'built-in'
+    }
   });
   const casbinRules = response.data || [];
   return casbinRules.map(item => `${item.v1}:${item.v2}`);

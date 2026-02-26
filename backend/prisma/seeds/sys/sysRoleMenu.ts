@@ -71,5 +71,5 @@ export const initSysRoleMenu = async () => {
     },
   ];
 
-  return prisma.sysRoleMenu.createMany({ data });
+  return prisma.sysRoleMenu.createMany({ data, skipDuplicates: true });
 };

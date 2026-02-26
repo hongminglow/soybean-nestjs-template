@@ -39,5 +39,5 @@ export const initSysRole = async () => {
     },
   ];
 
-  return prisma.sysRole.createMany({ data });
+  return prisma.sysRole.createMany({ data, skipDuplicates: true });
 };

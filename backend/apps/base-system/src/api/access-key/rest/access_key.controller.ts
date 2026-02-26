@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Post,
+  Put,
   Query,
   Request,
   UseGuards,
@@ -15,7 +16,7 @@ import { ApiRes } from '@lib/infra/rest/res.response';
 import { IAuthentication } from '@lib/typings/global';
 
 import { AccessKeyService } from '../../../services/access-key.service';
-import { AccessKeyCreateDto } from '../dto/access_key.dto';
+import { AccessKeyCreateDto, AccessKeyUpdateDto } from '../dto/access_key.dto';
 import { PageAccessKeysQueryDto } from '../dto/page-access_key.dto';
 
 @ApiTags('AccessKey - Module')
@@ -52,6 +53,22 @@ export class AccessKeyController {
       domain: dto.domain,
       description: dto.description,
       uid: user.uid,
+    });
+    return ApiRes.ok();
+  }
+
+  @Put()
+  @UseGuards(AuthZGuard)
+  @UsePermissions({ resource: 'access-key', action: AuthActionVerb.UPDATE })
+  @ApiOperation({ summary: 'Update access key by ID' })
+  async updateAccessKey(
+    @Body() dto: AccessKeyUpdateDto,
+  ): Promise<ApiRes<null>> {
+    await this.accessKeyService.updateAccessKey({
+      id: dto.id,
+      domain: dto.domain,
+      status: dto.status,
+      description: dto.description,
     });
     return ApiRes.ok();
   }

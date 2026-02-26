@@ -77,6 +77,10 @@ export class AuthZGuard implements CanActivate {
   ): Promise<boolean> {
     const { resource, action } = permission;
 
+    if (roles.has('ROLE_SUPER')) {
+      return true;
+    }
+
     return AuthZGuard.asyncSome<string>(Array.from(roles), async (role) => {
       return enforcer.enforce(role, resource, action, domain);
     });

@@ -3,7 +3,7 @@ import { request } from '../request';
 /** get access-key list */
 export function fetchGetAccessKeyList(params?: Access.AccessKeySearchParams) {
   return request<Access.AccessKeyList>({
-    url: '/access-key',
+    url: '/access-key/page',
     method: 'get',
     params
   });
@@ -45,7 +45,8 @@ export function updateAccessKey(req: Access.AccessKeyModel) {
  */
 export function deleteAccessKey(id: string) {
   return request({
-    url: `/access-key/${id}`,
-    method: 'delete'
+    url: '/access-key',
+    method: 'delete',
+    params: { id }
   });
 }

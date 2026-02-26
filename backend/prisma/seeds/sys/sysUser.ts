@@ -52,5 +52,5 @@ export const initSysUser = async () => {
     },
   ];
 
-  return prisma.sysUser.createMany({ data });
+  return prisma.sysUser.createMany({ data, skipDuplicates: true });
 };

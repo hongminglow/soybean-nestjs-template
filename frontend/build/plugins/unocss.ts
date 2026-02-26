@@ -3,6 +3,7 @@ import path from 'node:path';
 import unocss from '@unocss/vite';
 import presetIcons from '@unocss/preset-icons';
 import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders';
+import unoConfig from '../../uno.config';
 
 export function setupUnocss(viteEnv: Env.ImportMeta) {
   const { VITE_ICON_PREFIX, VITE_ICON_LOCAL_PREFIX } = viteEnv;
@@ -13,7 +14,10 @@ export function setupUnocss(viteEnv: Env.ImportMeta) {
   const collectionName = VITE_ICON_LOCAL_PREFIX.replace(`${VITE_ICON_PREFIX}-`, '');
 
   return unocss({
+    configFile: false,
+    ...unoConfig,
     presets: [
+      ...(unoConfig.presets || []),
       presetIcons({
         prefix: `${VITE_ICON_PREFIX}-`,
         scale: 1,

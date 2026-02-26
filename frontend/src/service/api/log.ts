@@ -3,7 +3,7 @@ import { request } from '../request';
 /** get login-log list */
 export function fetchGetLoginLogList(params?: Log.LoginLogSearchParams) {
   return request<Log.LoginLogList>({
-    url: '/login-log',
+    url: '/login-log/page',
     method: 'get',
     params
   });
@@ -12,7 +12,7 @@ export function fetchGetLoginLogList(params?: Log.LoginLogSearchParams) {
 /** get operation-log list */
 export function fetchGetOperationLogList(params?: Log.OperationLogSearchParams) {
   return request<Log.OperationLogList>({
-    url: '/operation-log',
+    url: '/operation-log/page',
     method: 'get',
     params
   });

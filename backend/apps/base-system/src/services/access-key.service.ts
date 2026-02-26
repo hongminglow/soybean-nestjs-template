@@ -93,6 +93,32 @@ export class AccessKeyService implements OnModuleInit {
     await this.complexApiKeyService.addKey(accessKeyID, accessKeySecret);
   }
 
+  async updateAccessKey(data: {
+    id: string;
+    domain?: string | null;
+    status: Status;
+    description?: string | null;
+  }): Promise<void> {
+    const existing = await this.prisma.sysAccessKey.findUnique({
+      where: { id: data.id },
+    });
+
+    if (!existing) {
+      throw new BadRequestException(
+        'An access key with the specified ID does not exist.',
+      );
+    }
+
+    await this.prisma.sysAccessKey.update({
+      where: { id: data.id },
+      data: {
+        domain: data.domain ?? existing.domain,
+        status: data.status,
+        description: data.description ?? existing.description,
+      },
+    });
+  }
+
   async deleteAccessKey(id: string): Promise<void> {
     const existing = await this.prisma.sysAccessKey.findUnique({
       where: { id },

@@ -370,5 +370,5 @@ export const initSysMenu = async () => {
     },
   ];
 
-  return prisma.sysMenu.createMany({ data });
+  return prisma.sysMenu.createMany({ data, skipDuplicates: true });
 };

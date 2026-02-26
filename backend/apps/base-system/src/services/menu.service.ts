@@ -238,6 +238,18 @@ export class MenuService {
     }));
   }
 
+  async isRouteExist(routeName: string): Promise<boolean> {
+    const route = await this.prisma.sysMenu.findFirst({
+      where: {
+        routeName,
+        status: Status.ENABLED,
+      },
+      select: { id: true },
+    });
+
+    return !!route;
+  }
+
   private buildMenuTree(menus: any[], pid = ROOT_ROUTE_PID): MenuRoute[] {
     const menuMap = new Map<number, any[]>();
     menus.forEach((menu) => {

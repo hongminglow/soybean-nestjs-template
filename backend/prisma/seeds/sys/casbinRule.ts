@@ -78,5 +78,5 @@ export const initCasbinRule = async () => {
     },
   ];
 
-  return prisma.casbinRule.createMany({ data });
+  return prisma.casbinRule.createMany({ data, skipDuplicates: true });
 };

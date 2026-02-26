@@ -1,17 +1,28 @@
-# Setup Guide
+# Setup Guide (From Fresh Clone to Running App)
 
-Step-by-step instructions to get both the backend and frontend running locally.
-
-## Prerequisites
-
-- **Node.js** >= 18
-- **pnpm** (recommended) or npm
-- **Docker** & **Docker Compose** (for PostgreSQL and Redis)
-- **Git**
+This guide assumes you just cloned the repository and want to run backend + frontend locally with default Soybean settings.
 
 ---
 
-## Step 1: Clone the Repository
+## 0) Prerequisites
+
+- Node.js `>= 18` (recommended LTS: Node 20 or 22)
+- `pnpm`
+- Docker Desktop (or Docker Engine + Docker Compose)
+- Git
+
+Check quickly:
+
+```bash
+node -v
+pnpm -v
+docker -v
+docker compose version
+```
+
+---
+
+## 1) Clone Repository
 
 ```bash
 git clone <your-repo-url>
@@ -20,211 +31,229 @@ cd soybean-nestjs-template
 
 ---
 
-## Step 2: Start PostgreSQL & Redis (via Docker)
-
-The easiest way is to use Docker Compose which spins up both databases:
+## 2) Start Databases (PostgreSQL + Redis)
 
 ```bash
-# Start only Postgres and Redis containers
 docker compose up -d postgres redis
 ```
 
-This starts:
+Default ports/services:
 
-- **PostgreSQL 16** on port `25432` (user: `soybean`, password: `soybean@123.`, database: `soybean-admin-nest-backend`)
-- **Redis** on port `26379` (password: `123456`)
-
-> **Alternative**: If you have Postgres and Redis installed locally, update the connection strings in `backend/.env` accordingly.
+- PostgreSQL: `localhost:25432`
+- Redis: `localhost:26379`
 
 ---
 
-## Step 3: Backend Setup
+## 3) Backend Setup
 
 ```bash
 cd backend
-```
-
-### 3.1 Install Dependencies
-
-```bash
 pnpm install
 ```
 
-### 3.2 Configure Environment
+### 3.1 Backend `.env`
 
-The backend uses a `.env` file at `backend/.env`. The default values work with the Docker setup above:
+Use `backend/.env` (default values below are valid for local Docker setup):
 
 ```dotenv
 DATABASE_URL="postgresql://soybean:soybean@123.@localhost:25432/soybean-admin-nest-backend?schema=public"
 DIRECT_DATABASE_URL="postgresql://soybean:soybean@123.@localhost:25432/soybean-admin-nest-backend?schema=public"
 ```
 
-The following environment variables can also be set (they have sensible defaults):
+### 3.2 Backend env fields (what they mean)
 
-| Variable                  | Default                                          | Description                  |
-| ------------------------- | ------------------------------------------------ | ---------------------------- |
-| `NODE_ENV`                | `development`                                    | Environment mode             |
-| `APP_PORT`                | `9528`                                           | Backend server port          |
-| `DATABASE_URL`            | _(see .env)_                                     | PostgreSQL connection string |
-| `REDIS_HOST`              | `localhost`                                      | Redis host                   |
-| `REDIS_PORT`              | `26379`                                          | Redis port                   |
-| `REDIS_PASSWORD`          | `123456`                                         | Redis password               |
-| `REDIS_DB`                | `1`                                              | Redis database index         |
-| `JWT_SECRET`              | `JWT_SECRET-soybean-admin-nest!@#123.`           | JWT signing secret           |
-| `JWT_EXPIRE_IN`           | `7200`                                           | Access token TTL (seconds)   |
-| `REFRESH_TOKEN_SECRET`    | `REFRESH_TOKEN_SECRET-soybean-admin-nest!@#123.` | Refresh token secret         |
-| `REFRESH_TOKEN_EXPIRE_IN` | `43200`                                          | Refresh token TTL (seconds)  |
-| `CASBIN_MODEL`            | `model.conf`                                     | Casbin RBAC model file       |
-| `DOC_SWAGGER_ENABLE`      | `true`                                           | Enable Swagger docs          |
-| `DOC_SWAGGER_PATH`        | `api-docs`                                       | Swagger docs URL path        |
+| Field                     | Meaning                      | Default / Recommended                          |
+| ------------------------- | ---------------------------- | ---------------------------------------------- |
+| `APP_PORT`                | Backend HTTP port            | `9528`                                         |
+| `DATABASE_URL`            | Prisma DB connection         | `postgresql://soybean:...@localhost:25432/...` |
+| `DIRECT_DATABASE_URL`     | Direct DB URL for migrations | same as above                                  |
+| `REDIS_HOST`              | Redis host                   | `localhost`                                    |
+| `REDIS_PORT`              | Redis port                   | `26379`                                        |
+| `REDIS_PASSWORD`          | Redis password               | `123456`                                       |
+| `REDIS_DB`                | Redis DB index               | `1`                                            |
+| `JWT_SECRET`              | Access token signing secret  | default from project                           |
+| `JWT_EXPIRE_IN`           | Access token TTL (seconds)   | `7200`                                         |
+| `REFRESH_TOKEN_SECRET`    | Refresh token signing secret | default from project                           |
+| `REFRESH_TOKEN_EXPIRE_IN` | Refresh token TTL (seconds)  | `43200`                                        |
+| `DOC_SWAGGER_ENABLE`      | Swagger enable flag          | `true`                                         |
+| `DOC_SWAGGER_PATH`        | Swagger path                 | `api-docs`                                     |
 
-### 3.3 Generate Prisma Client
+If you are not customizing infrastructure, you can keep Soybean defaults as-is.
+
+### 3.3 Prisma generate / migrate / seed
 
 ```bash
 pnpm prisma:generate
-# or: npx prisma generate
-```
-
-### 3.4 Run Database Migrations
-
-```bash
 npx prisma migrate deploy
+npx prisma db seed
 ```
 
-This creates all required tables in PostgreSQL.
-
-### 3.5 Seed the Database
+If `migrate deploy` returns `P3005 (database schema is not empty)`, it means DB may already be initialized by Docker SQL scripts. In that case, continue with:
 
 ```bash
 npx prisma db seed
 ```
 
-This populates initial data: default user (`soybean` / `123456`), roles, menus, domains, permissions, and Casbin rules.
-
-### 3.6 Start the Backend
+### 3.4 Start backend
 
 ```bash
 pnpm start:dev
 ```
 
-The backend starts at **http://localhost:9528**.
-Swagger API docs available at **http://localhost:9528/api-docs**.
+Backend URLs:
+
+- API base: `http://localhost:9528/v1`
+- Swagger: `http://localhost:9528/api-docs`
 
 ---
 
-## Step 4: Frontend Setup
+## 4) Frontend Setup
 
-Open a **new terminal**:
+Open a new terminal:
 
 ```bash
 cd frontend
-```
-
-### 4.1 Install Dependencies
-
-```bash
 pnpm install
-```
-
-### 4.2 Configure Backend URL
-
-The frontend proxies API requests to the backend. The config is in `frontend/.env.test`:
-
-```dotenv
-VITE_SERVICE_BASE_URL=http://localhost:9528/v1
-```
-
-This is the default and should work out of the box.
-
-### 4.3 Start the Frontend
-
-```bash
 pnpm dev
 ```
 
-The frontend starts at **http://localhost:9527** (or another port shown in terminal).
+Frontend dev URL is usually `http://localhost:9527` (or next free port shown by Vite).
+
+### 4.1 Frontend env fields
+
+`frontend/.env` and mode-specific `.env.test` are used.
+
+Important fields:
+
+| Field                                 | Meaning                     | Default                    |
+| ------------------------------------- | --------------------------- | -------------------------- |
+| `VITE_HTTP_PROXY`                     | Use Vite proxy in dev       | `Y`                        |
+| `VITE_SERVICE_BASE_URL` (`.env.test`) | Backend API base            | `http://localhost:9528/v1` |
+| `VITE_SERVICE_SUCCESS_CODE`           | Backend success code        | `200`                      |
+| `VITE_SERVICE_EXPIRED_TOKEN_CODES`    | Token refresh trigger codes | `401`                      |
+
+If you keep backend on `9528`, no change needed.
 
 ---
 
-## Step 5: Login
+## 5) First Login
 
-Open your browser at the frontend URL and login with:
+Use seeded account:
 
-- **Username**: `soybean`
-- **Password**: `123456`
+- Username: `Soybean`
+- Password: `123456`
+
+> Note: `soybean` (lowercase) will fail; username is case-sensitive.
 
 ---
 
-## Quick Start (Docker Compose - Full Stack)
+## 6) VS Code PostgreSQL Extension Setup
 
-To run everything in Docker (PostgreSQL + Redis + Backend + Frontend):
+If you install a PostgreSQL extension (e.g. PostgreSQL by Chris Kolkman or SQLTools + PostgreSQL driver), it will ask for connection fields.
+
+Fill with project defaults:
+
+- Hostname / Server: `localhost`
+- Port: `25432`
+- Database: `soybean-admin-nest-backend`
+- Username / User: `soybean`
+- Password: `soybean@123.`
+- SSL: `Disable` / `false`
+
+Optional:
+
+- Connection name: `soybean-local`
+
+After connecting, you should see tables like `sys_user`, `sys_role`, `sys_menu`, `casbin_rule`.
+
+---
+
+## 7) Verify Everything Works
+
+### 7.1 Quick backend check
+
+Open in browser:
+
+- `http://localhost:9528/v1/menu/getConstantRoutes`
+
+You should get JSON with `code: 200`.
+
+### 7.2 API auth check (optional)
+
+Login endpoint:
+
+`POST http://localhost:9528/v1/auth/login`
+
+Body:
+
+```json
+{
+  "identifier": "Soybean",
+  "password": "123456"
+}
+```
+
+Then call:
+
+`GET http://localhost:9528/v1/auth/getUserInfo`
+
+with header:
+
+`Authorization: Bearer <token>`
+
+### 7.3 Frontend pages to verify
+
+- Login page
+- Manage → Role
+- Manage → User
+- Access Key
+- Log → Login / Operation
+
+---
+
+## 8) Troubleshooting
+
+### A) `Cannot connect to database`
+
+- Check containers: `docker compose ps`
+- Ensure `backend/.env` points to `localhost:25432`
+
+### B) `Redis connection refused`
+
+- Check Redis container running
+- Ensure `REDIS_PORT=26379` and password `123456`
+
+### C) `Cannot GET /v1/...` (404)
+
+Usually path mismatch between frontend and backend route contract.
+
+Examples of valid backend paths in this repo:
+
+- `/v1/role/page`
+- `/v1/user/page`
+- `/v1/menu/getConstantRoutes`
+- `/v1/login-log/page`
+- `/v1/operation-log/page`
+- `/v1/access-key/page`
+
+### D) `Forbidden resource` (403)
+
+- Token is present but permission denied by authz/casbin
+- Re-login and retry
+- Confirm seeded role and policies exist
+
+### E) Frontend starts on another port
+
+If `9527` is occupied, Vite auto-selects next free port (e.g. `9529`). Use the port shown in terminal.
+
+---
+
+## 9) Full Docker (Optional)
+
+Run all services via Docker:
 
 ```bash
-# From the project root
 docker compose up -d
 ```
 
-This will:
-
-1. Start PostgreSQL and Redis
-2. Run database migrations and seeding (`db-init` service)
-3. Start the backend on port `9528`
-4. Start the frontend on port `9527`
-
-Access the app at **http://localhost:9527**.
-
----
-
-## Useful Commands
-
-### Backend
-
-| Command                                | Description                 |
-| -------------------------------------- | --------------------------- |
-| `pnpm start:dev`                       | Start in dev mode (watch)   |
-| `pnpm build`                           | Build for production        |
-| `pnpm start:prod`                      | Start production build      |
-| `pnpm prisma:studio`                   | Open Prisma Studio (DB GUI) |
-| `pnpm prisma:generate`                 | Regenerate Prisma client    |
-| `npx prisma migrate dev --name <name>` | Create a new migration      |
-| `npx prisma migrate deploy`            | Apply migrations            |
-| `npx prisma db seed`                   | Run database seed           |
-
-### Frontend
-
-| Command          | Description                  |
-| ---------------- | ---------------------------- |
-| `pnpm dev`       | Start dev server             |
-| `pnpm build`     | Build for production         |
-| `pnpm preview`   | Preview production build     |
-| `pnpm typecheck` | Run TypeScript type checking |
-| `pnpm lint`      | Lint and fix code            |
-
----
-
-## Troubleshooting
-
-### "Cannot connect to database"
-
-- Ensure PostgreSQL is running: `docker compose ps`
-- Check the `DATABASE_URL` in `backend/.env` matches your setup
-- Default Docker port is `25432` (not the standard `5432`)
-
-### "Redis connection refused"
-
-- Ensure Redis is running: `docker compose ps`
-- Default Docker port is `26379` (not the standard `6379`)
-- Default password is `123456`
-
-### "Prisma client not generated"
-
-- Run `npx prisma generate` in the `backend/` directory
-
-### "Missing tables / empty database"
-
-- Run `npx prisma migrate deploy` then `npx prisma db seed`
-
-### Frontend shows login errors
-
-- Make sure the backend is running and accessible at `http://localhost:9528`
-- Check the proxy config in `frontend/.env.test`
+This starts DB + Redis + backend + frontend (with init steps).
