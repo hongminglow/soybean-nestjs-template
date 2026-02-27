@@ -94,6 +94,102 @@ If `migrate deploy` returns `P3005 (database schema is not empty)`, it means DB 
 npx prisma db seed
 ```
 
+### 3.3.1 After changing `schema.prisma` (keep current records, no reset)
+
+Use this flow when you change columns/tables but want to keep existing data.
+
+#### Step 0) If this DB existed before Prisma migration history, baseline it once
+
+If `npx prisma migrate status` shows many old migrations as "not yet applied" on a DB that already has tables/data, mark them as applied first (no data drop):
+
+```bash
+cd backend
+npx prisma migrate resolve --applied 0_init_migration
+npx prisma migrate resolve --applied 0_migration
+npx prisma migrate resolve --applied 1_migration
+npx prisma migrate resolve --applied 20240902161339_migration
+```
+
+Then re-check:
+
+```bash
+npx prisma migrate status
+```
+
+Do this baseline step only once per existing local database.
+
+#### Step 1) Confirm database is reachable
+
+```bash
+cd backend
+npx prisma migrate status
+```
+
+#### Step 2) Create a named migration from your schema change
+
+```bash
+cd backend
+npx prisma migrate dev --name <describe_change>
+```
+
+Example:
+
+```bash
+npx prisma migrate dev --name rename_sys_user_id_to_user_id
+```
+
+This creates a new folder under `backend/prisma/migrations/...` and updates Prisma Client.
+
+#### Step 3) If Prisma asks for `migrate reset`, do NOT reset production-like data
+
+If your local DB was initialized by SQL scripts or drifted from Prisma migration history, `migrate dev` may request reset.
+
+To keep records, use this safe path instead:
+
+1. Create SQL manually for only the needed change (example: `ALTER TABLE ... RENAME COLUMN ...`).
+2. Run that SQL against current DB:
+
+```bash
+cd backend
+npx prisma db execute --file <path-to-sql-file>
+```
+
+3. Regenerate Prisma Client:
+
+```bash
+pnpm prisma:generate
+```
+
+4. Create a migration file for teammates (so cloned repos can apply the same change):
+
+```bash
+npx prisma migrate dev --name <describe_change> --create-only
+```
+
+5. Commit all of these together:
+
+- `backend/prisma/schema.prisma`
+- new folder in `backend/prisma/migrations/`
+- any SQL file you used for manual execute
+
+#### Step 4) Restart only backend process
+
+- Local dev: stop/start `pnpm start:dev`
+- Docker backend: `docker compose restart backend`
+
+You do **not** need to restart PostgreSQL/Redis for schema-only changes.
+
+#### Step 5) Team member flow after pulling
+
+```bash
+cd backend
+pnpm install
+pnpm prisma:generate
+npx prisma migrate deploy
+```
+
+Then restart backend.
+
 ### 3.4 Start backend
 
 ```bash
@@ -148,7 +244,7 @@ Option B (this project's common local setup if drift exists due preloaded SQL):
 
 ```bash
 cd backend
-npx prisma db execute --file ../deploy/postgres/09_sys_test.sql --schema prisma/schema.prisma
+npx prisma db execute --file ../deploy/postgres/09_sys_test.sql
 pnpm prisma:generate
 ```
 
@@ -471,6 +567,15 @@ npx prisma db seed
 ---
 
 ## 10) Troubleshooting
+
+### A0) `prisma migrate dev` says reset is required, but I must keep data
+
+- Do **not** run `prisma migrate reset` if you need current records.
+- Run `npx prisma migrate status`; if old migrations show as unapplied on an existing DB, baseline with `npx prisma migrate resolve --applied <migration_name>` for each historical migration.
+- Apply only the intended SQL change with `prisma db execute`.
+- Run `pnpm prisma:generate`.
+- Generate migration metadata with `prisma migrate dev --create-only --name <change_name>` and commit it.
+- For shared/dev/staging/prod rollout, use `prisma migrate deploy` on environments that should apply committed migrations.
 
 ### A) `Cannot connect to database`
 
