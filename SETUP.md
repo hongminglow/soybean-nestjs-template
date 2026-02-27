@@ -105,6 +105,72 @@ Backend URLs:
 - API base: `http://localhost:9528/v1`
 - Swagger: `http://localhost:9528/api-docs`
 
+### 3.5 Example: create a new table with Prisma (`sys_test`)
+
+This repo now includes a mock table model in Prisma schema: `SysTest` (`@@map("sys_test")`).
+
+File references:
+
+- Prisma model: `backend/prisma/schema.prisma`
+- SQL fallback for existing DBs: `deploy/postgres/09_sys_test.sql`
+
+#### Step 1) Add model in Prisma schema
+
+Example:
+
+```prisma
+model SysTest {
+  id          String    @id @default(cuid())
+  testCode    String    @unique @map("test_code")
+  testName    String    @map("test_name")
+  description String?
+  isActive    Boolean   @default(true) @map("is_active")
+  meta        Json?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  createdBy   String    @map("created_by")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  updatedBy   String?   @map("updated_by")
+
+  @@map("sys_test")
+}
+```
+
+#### Step 2) Apply DB change
+
+Option A (clean Prisma migration flow, recommended for new/clean dev DB):
+
+```bash
+cd backend
+npx prisma migrate dev --name add_sys_test_table
+```
+
+Option B (this project's common local setup if drift exists due preloaded SQL):
+
+```bash
+cd backend
+npx prisma db execute --file ../deploy/postgres/09_sys_test.sql --schema prisma/schema.prisma
+pnpm prisma:generate
+```
+
+#### Step 3) Reflect changes in app runtime
+
+- If backend runs via local dev command (`pnpm start:dev`): restart backend process once.
+- If backend runs in Docker: restart only backend container:
+
+```bash
+docker compose restart backend
+```
+
+- PostgreSQL/Redis container restart is NOT required for schema-only changes.
+
+#### Step 4) Verify table exists
+
+```bash
+docker compose exec -T postgres psql -U soybean -d soybean-admin-nest-backend -c '\d "sys_test"'
+```
+
+You can also run `pnpm prisma:studio` in `backend` and check `sys_test` visually.
+
 ---
 
 ## 4) Frontend Setup
