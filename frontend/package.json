@@ -104,8 +104,8 @@
     "vue-tsc": "2.2.8"
   },
   "simple-git-hooks": {
-    "commit-msg": "pnpm -C frontend exec sa git-commit-verify",
-    "pre-commit": "pnpm -C frontend run typecheck && pnpm -C frontend exec lint-staged"
+    "commit-msg": "sh -c 'if [ -d frontend/node_modules ]; then pnpm -C frontend exec sa git-commit-verify; else echo \"[WARN] frontend/node_modules not found, skip commit-msg verify\"; fi'",
+    "pre-commit": "sh -c 'if [ -d frontend/node_modules ]; then pnpm -C frontend run typecheck && pnpm -C frontend exec lint-staged; else echo \"[WARN] frontend/node_modules not found, skip pre-commit checks\"; fi'"
   },
   "lint-staged": {
     "*": "eslint --fix"

@@ -134,6 +134,25 @@ Important fields:
 
 If you keep backend on `9528`, no change needed.
 
+### 4.2 Git hooks bootstrap (run once per clone)
+
+This repository uses `simple-git-hooks` from the frontend package. Run this once after cloning (and after pulling hook changes):
+
+```bash
+pnpm -C frontend run prepare
+```
+
+Why: hooks are written into `.git/hooks` and are not versioned by Git. If hooks are stale, commit may fail with errors like:
+
+- `ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND`
+- `No package.json found in repo root`
+
+Safe refresh command:
+
+```bash
+pnpm -C frontend run prepare
+```
+
 ---
 
 ## 5) First Login
@@ -393,6 +412,22 @@ Examples of valid backend paths in this repo:
 ### E) Frontend starts on another port
 
 If `9527` is occupied, Vite auto-selects next free port (e.g. `9529`). Use the port shown in terminal.
+
+### F) Git commit fails with `ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND`
+
+This usually means `.git/hooks` still has old scripts that run `pnpm` from repo root.
+
+Fix:
+
+```bash
+pnpm -C frontend run prepare
+```
+
+If you need to commit urgently and skip hooks once:
+
+```bash
+SKIP_SIMPLE_GIT_HOOKS=1 git commit -m "your message"
+```
 
 ---
 
