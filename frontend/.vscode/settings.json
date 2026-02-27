@@ -3,7 +3,8 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"
   },
-  "editor.formatOnSave": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
   "eslint.validate": ["html", "css", "scss", "json", "jsonc"],
   "i18n-ally.displayLanguage": "zh-cn",
   "i18n-ally.enabledParsers": ["ts"],
@@ -11,7 +12,7 @@
   "i18n-ally.editor.preferEditor": true,
   "i18n-ally.keystyle": "nested",
   "i18n-ally.localesPaths": ["src/locales/langs"],
-  "prettier.enable": false,
+  "prettier.enable": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "unocss.root": ["./"],
   "vue.server.hybridMode": true

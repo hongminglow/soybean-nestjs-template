@@ -219,6 +219,32 @@ Safe refresh command:
 pnpm -C frontend run prepare
 ```
 
+### 4.3 Formatting standard (Prettier + format on save)
+
+This repo now includes workspace VS Code settings to auto-format with Prettier on save:
+
+- `.vscode/settings.json` (workspace-level)
+- `.vscode/extensions.json` (recommended extensions)
+
+Please install recommended extensions when prompted (especially `esbenp.prettier-vscode`).
+
+Manual format commands:
+
+```bash
+# frontend
+pnpm -C frontend run format
+pnpm -C frontend run format:check
+
+# backend
+pnpm -C backend run format
+pnpm -C backend run format:check
+```
+
+Notes:
+
+- `formatOnSave` uses Prettier for common file types (ts/js/vue/json/md/yaml/css/scss).
+- `prettier.requireConfig=true` is enabled to avoid accidental formatting from global defaults.
+
 ---
 
 ## 5) First Login
