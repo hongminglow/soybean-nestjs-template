@@ -3,10 +3,12 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import type { Adapter, Model } from 'casbin';
 import { Helper } from 'casbin';
 
+import { createPrismaClientOptions } from '@lib/shared/prisma/prisma-client-options';
+
 export class PrismaAdapter implements Adapter {
   filtered = false;
   #option?: Prisma.PrismaClientOptions;
-  #prisma: PrismaClient;
+  #prisma!: PrismaClient;
 
   /**
    * @param option It should be PrismaClientOptions or PrismaClient.
@@ -188,7 +190,7 @@ export class PrismaAdapter implements Adapter {
 
   readonly #open = async (): Promise<void> => {
     if (!this.#option) {
-      this.#option = {};
+      this.#option = createPrismaClientOptions();
     }
     if (!this.#prisma) {
       this.#prisma = new PrismaClient(this.#option);

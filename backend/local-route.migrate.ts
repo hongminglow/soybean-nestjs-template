@@ -1,10 +1,13 @@
+import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
 
 import { PrismaClient, SysMenu } from '@prisma/client';
 import ts from 'typescript';
 
-const prisma = new PrismaClient();
+import { createPrismaClientOptions } from './libs/shared/prisma/src/prisma-client-options';
+
+const prisma = new PrismaClient(createPrismaClientOptions());
 
 /**
  * 递归地从 TypeScript AST 节点中提取值
