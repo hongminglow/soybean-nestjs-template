@@ -117,13 +117,18 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   async function initUserInfo() {
     const hasToken = getToken();
 
-    if (hasToken) {
-      const pass = await getUserInfo();
-
-      if (!pass) {
-        resetStore();
-      }
+    if (!hasToken) {
+      return false;
     }
+
+    const pass = await getUserInfo();
+
+    if (!pass) {
+      await resetStore();
+      return false;
+    }
+
+    return true;
   }
 
   return {

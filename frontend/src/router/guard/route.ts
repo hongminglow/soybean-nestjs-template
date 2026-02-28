@@ -9,7 +9,7 @@ import type { RouteKey, RoutePath } from '@elegant-router/types';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouteStore } from '@/store/modules/route';
 import { localStg } from '@/utils/storage';
-import { getRouteName } from '@/router/elegant/transform';
+import { getRouteName, getRoutePath } from '@/router/elegant/transform';
 
 /**
  * create route guard
@@ -40,6 +40,30 @@ export function createRouteGuard(router: Router) {
 
     // if it is login route when logged in, then switch to the root page
     if (to.name === loginRoute && isLogin) {
+      const routeStore = useRouteStore();
+      const pass = await authStore.initUserInfo();
+
+      if (!pass) {
+        handleRouteSwitch(to, from, next);
+        return;
+      }
+
+      const homePath = getRoutePath(routeStore.routeHome as RouteKey);
+
+      if (!homePath) {
+        await authStore.resetStore();
+        handleRouteSwitch(to, from, next);
+        return;
+      }
+
+      const canReachHome = await routeStore.getIsAuthRouteExist(homePath as RoutePath);
+
+      if (!canReachHome) {
+        await authStore.resetStore();
+        handleRouteSwitch(to, from, next);
+        return;
+      }
+
       next({ name: rootRoute });
       return;
     }
