@@ -8,3 +8,4 @@ export { EndpointService } from './endpoint.service';
 export { LoginLogService } from './login-log.service';
 export { OperationLogService } from './operation-log.service';
 export { AccessKeyService } from './access-key.service';
+export { SystemConfigService } from './config.service';

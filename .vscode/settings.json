@@ -28,5 +28,18 @@
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "prettier.requireConfig": true
+  "prettier.requireConfig": true,
+  "sqltools.connections": [
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 25432,
+      "askForPassword": true,
+      "driver": "PostgreSQL",
+      "name": "localhost",
+      "database": "soybean-admin-nest-backend",
+      "username": "soybean"
+    }
+  ]
 }

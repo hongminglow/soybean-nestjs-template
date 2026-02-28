@@ -14,10 +14,12 @@ import {
   MenuService,
   OperationLogService,
   RoleService,
+  SystemConfigService,
   UserService,
 } from '../services';
 
 import { Controllers as AccessKeyControllers } from './access-key/rest';
+import { Controllers as ConfigControllers } from './config/rest';
 import { Controllers as EndpointControllers } from './endpoint/rest';
 import { Controllers as IamControllers } from './iam/rest';
 import { Controllers as LoginLogControllers } from './log-audit/login-log/rest';
@@ -28,6 +30,7 @@ const AllControllers = [
   ...IamControllers,
   ...EndpointControllers,
   ...AccessKeyControllers,
+  ...ConfigControllers,
   ...LoginLogControllers,
   ...OperationLogControllers,
   ...TestControllers,
@@ -44,6 +47,7 @@ const AllServices = [
   LoginLogService,
   OperationLogService,
   AccessKeyService,
+  SystemConfigService,
 ];
 
 @Module({

@@ -12,6 +12,12 @@ datasource db {
     provider = "postgresql"
 }
 
+enum Status {
+    ENABLED
+    DISABLED
+    BANNED
+}
+
 model SysTokens {
     id           String   @id @default(cuid())
     accessToken  String   @unique @map("access_token")
@@ -51,12 +57,6 @@ model SysUser {
     updatedBy   String?   @map("updated_by")
 
     @@map("sys_user")
-}
-
-enum Status {
-    ENABLED
-    DISABLED
-    BANNED
 }
 
 // casbin_rule
@@ -239,6 +239,18 @@ model SysAccessKey {
     createdBy       String   @map("created_by")
 
     @@map("sys_access_key")
+}
+
+model SysConfig {
+    id              String   @id @default(cuid())
+    configKey        String @map("config_key")
+    configValue     String   @map("config_value")
+    status          Status
+    createdAt       DateTime @default(now()) @map("created_at")
+    createdBy       String   @map("created_by")
+    updatedAt       DateTime? @updatedAt @map("updated_at")
+    updatedBy       String?   @map("updated_by")
+    @@map("sys_config")
 }
 
 model SysTest {

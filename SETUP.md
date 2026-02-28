@@ -82,16 +82,29 @@ If you are not customizing infrastructure, you can keep Soybean defaults as-is.
 
 ### 3.3 Prisma generate / migrate / seed
 
+Recommended (single command):
+
 ```bash
-pnpm prisma:generate
-npx prisma migrate deploy
-npx prisma db seed
+pnpm db:setup
 ```
 
-If `migrate deploy` returns `P3005 (database schema is not empty)`, it means DB may already be initialized by Docker SQL scripts. In that case, continue with:
+Equivalent manual commands:
 
 ```bash
-npx prisma db seed
+pnpm prisma:generate
+pnpm db:deploy
+pnpm db:seed
+```
+
+What this ensures for a fresh clone:
+
+- applies all committed Prisma migrations under `backend/prisma/migrations`,
+- then applies seed data under `backend/prisma/seeds` (including menu/role mappings such as `manage_sms` and `manage_config`).
+
+If `pnpm db:deploy` returns `P3005 (database schema is not empty)`, it means DB may already be initialized by Docker SQL scripts. In that case, continue with:
+
+```bash
+pnpm db:seed
 ```
 
 ### 3.3.1 After changing `schema.prisma` (keep current records, no reset)
@@ -122,7 +135,7 @@ Do this baseline step only once per existing local database.
 
 ```bash
 cd backend
-npx prisma migrate status
+pnpm db:status
 ```
 
 #### Step 2) Create a named migration from your schema change
@@ -184,8 +197,7 @@ You do **not** need to restart PostgreSQL/Redis for schema-only changes.
 ```bash
 cd backend
 pnpm install
-pnpm prisma:generate
-npx prisma migrate deploy
+pnpm db:setup
 ```
 
 Then restart backend.

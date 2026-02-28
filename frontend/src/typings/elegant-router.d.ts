@@ -29,6 +29,7 @@ declare module "@elegant-router/types" {
     "log_operation": "/log/operation";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "manage": "/manage";
+    "manage_config": "/manage/config";
     "manage_menu": "/manage/menu";
     "manage_role": "/manage/role";
     "manage_sms": "/manage/sms";
@@ -101,6 +102,7 @@ declare module "@elegant-router/types" {
     | "home"
     | "log_login"
     | "log_operation"
+    | "manage_config"
     | "manage_menu"
     | "manage_role"
     | "manage_sms"

@@ -41,12 +41,32 @@ export const initSysRoleMenu = async () => {
     },
     {
       roleId: '2',
+      menuId: 54,
+      domain: 'built-in',
+    },
+    {
+      roleId: '2',
       menuId: 62,
+      domain: 'built-in',
+    },
+    {
+      roleId: '2',
+      menuId: 73,
       domain: 'built-in',
     },
     {
       roleId: '3',
       menuId: 50,
+      domain: 'built-in',
+    },
+    {
+      roleId: '3',
+      menuId: 54,
+      domain: 'built-in',
+    },
+    {
+      roleId: '3',
+      menuId: 73,
       domain: 'built-in',
     },
     {
@@ -72,6 +92,21 @@ export const initSysRoleMenu = async () => {
     {
       roleId: '1',
       menuId: 73,
+      domain: 'built-in',
+    },
+    {
+      roleId: '1',
+      menuId: 74,
+      domain: 'built-in',
+    },
+    {
+      roleId: '2',
+      menuId: 74,
+      domain: 'built-in',
+    },
+    {
+      roleId: '3',
+      menuId: 74,
       domain: 'built-in',
     },
   ];

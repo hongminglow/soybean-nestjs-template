@@ -170,6 +170,7 @@ const local: App.I18n.Schema = {
     manage_role: 'Role Manage',
     manage_menu: 'Menu Manage',
     manage_sms: 'SMS Config Manage',
+    manage_config: 'System Config',
     'access-key': 'AccessKey',
     log: 'Log',
     log_login: 'Login Log',
@@ -302,6 +303,19 @@ const local: App.I18n.Schema = {
           male: 'Male',
           female: 'Female'
         }
+      },
+      config: {
+        title: 'System Config List',
+        configKey: 'Config Key',
+        configValue: 'Config Value',
+        configStatus: 'Status',
+        form: {
+          configKey: 'Please enter config key',
+          configValue: 'Please enter config value',
+          configStatus: 'Please select status'
+        },
+        addConfig: 'Add Config',
+        editConfig: 'Edit Config'
       },
       menu: {
         home: 'Home',

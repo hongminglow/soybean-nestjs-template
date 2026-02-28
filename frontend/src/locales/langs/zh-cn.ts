@@ -170,6 +170,7 @@ const local: App.I18n.Schema = {
     manage_role: '角色管理',
     manage_menu: '菜单管理',
     manage_sms: '短信内容配置',
+    manage_config: '系统配置',
     'access-key': '访问密钥',
     log: '日志',
     log_login: '登录日志',
@@ -302,6 +303,19 @@ const local: App.I18n.Schema = {
           male: '男',
           female: '女'
         }
+      },
+      config: {
+        title: '系统配置列表',
+        configKey: '配置键',
+        configValue: '配置值',
+        configStatus: '状态',
+        form: {
+          configKey: '请输入配置键',
+          configValue: '请输入配置值',
+          configStatus: '请选择状态'
+        },
+        addConfig: '新增配置',
+        editConfig: '编辑配置'
       },
       menu: {
         home: '首页',

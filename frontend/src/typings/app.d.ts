@@ -540,6 +540,19 @@ declare namespace App {
               female: string;
             };
           };
+          config: {
+            title: string;
+            configKey: string;
+            configValue: string;
+            configStatus: string;
+            form: {
+              configKey: string;
+              configValue: string;
+              configStatus: string;
+            };
+            addConfig: string;
+            editConfig: string;
+          };
           menu: {
             home: string;
             title: string;
