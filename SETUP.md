@@ -88,6 +88,22 @@ Recommended (single command):
 pnpm db:setup
 ```
 
+`db:setup` in `backend/package.json` is:
+
+```bash
+node ./scripts/db-setup-safe.cjs
+```
+
+What `db:setup` now does:
+
+- runs `pnpm prisma:generate`
+- runs `pnpm db:deploy`
+- if deploy fails with `P3005 (schema is not empty)`, it auto-baselines pending migrations with `prisma migrate resolve --applied ...`
+- re-checks migration status
+- runs idempotent migration repair SQL files (those using `IF NOT EXISTS`) to self-heal missing tables on existing local DBs
+- runs `pnpm db:seed`
+- if deploy fails for other reasons, it stops and returns error
+
 Equivalent manual commands:
 
 ```bash
@@ -104,6 +120,15 @@ What this ensures for a fresh clone:
 If `pnpm db:deploy` returns `P3005 (database schema is not empty)`, it means DB may already be initialized by Docker SQL scripts. In that case, continue with:
 
 ```bash
+pnpm db:seed
+```
+
+Recommended fallback flow for existing local DBs:
+
+```bash
+cd backend
+pnpm prisma:generate
+pnpm db:deploy   # if P3005, continue
 pnpm db:seed
 ```
 
