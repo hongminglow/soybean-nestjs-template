@@ -169,7 +169,7 @@ const local: App.I18n.Schema = {
     'manage_user-detail': 'User Detail',
     manage_role: 'Role Manage',
     manage_menu: 'Menu Manage',
-    manage_sms: 'SMS Config Manage',
+    manage_sms: 'SMS Template Locales',
     manage_config: 'System Config',
     'access-key': 'AccessKey',
     log: 'Log',
@@ -386,30 +386,22 @@ const local: App.I18n.Schema = {
         }
       },
       sms: {
-        config: {
-          title: 'SMS Content Configuration',
-          tip: 'Standard SMS (GSM) only supports plain text. Formatting like bold or italic is not supported by mobile carriers.',
-          senderId: 'Sender ID (Alpha Tag)',
-          senderIdPlaceholder: 'Enter Sender Name (e.g. BRANDNAME)',
-          template: 'Message Template',
-          templatePlaceholder: 'Enter your message template here...',
-          charCount: '{count} characters ({segments} SMS segments)',
-          charCountSingle: '{count} characters ({segments} SMS segment)',
-          quickInsert: 'Quick Insert Variables',
-          saveConfig: 'Save Configuration',
-          phonePreview: 'Phone Preview',
-          saveSuccess: 'SMS configuration saved successfully!',
-          variables: {
-            otp: 'OTP Code',
-            expiry: 'Expiry Time',
-            brand: 'Brand Name'
-          },
-          mock: {
-            sender: 'Sender',
-            placeholder: 'Type something to see preview...',
-            time: 'Today 9:41 AM',
-            input: 'Text Message'
-          }
+        title: 'SMS Template Locales',
+        keyword: 'Template Keyword',
+        language: 'Language',
+        content: 'Message Content',
+        variables: 'Variables',
+        selectedVars: 'Selected Variables',
+        availableVars: 'Available Variables',
+        dragToReorder: 'Drag to reorder variables',
+        status: 'Status',
+        phonePreview: 'Phone Preview',
+        addTemplate: 'Add Template',
+        editTemplate: 'Edit Template',
+        form: {
+          keyword: 'Please select a template keyword',
+          language: 'Please select a language',
+          content: 'Enter your SMS template content here...'
         }
       }
     }

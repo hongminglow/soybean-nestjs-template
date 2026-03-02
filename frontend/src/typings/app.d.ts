@@ -622,30 +622,22 @@ declare namespace App {
             };
           };
           sms: {
-            config: {
-              title: string;
-              tip: string;
-              senderId: string;
-              senderIdPlaceholder: string;
-              template: string;
-              templatePlaceholder: string;
-              charCount: string;
-              charCountSingle: string;
-              quickInsert: string;
-              saveConfig: string;
-              phonePreview: string;
-              saveSuccess: string;
-              variables: {
-                otp: string;
-                expiry: string;
-                brand: string;
-              };
-              mock: {
-                sender: string;
-                placeholder: string;
-                time: string;
-                input: string;
-              };
+            title: string;
+            keyword: string;
+            language: string;
+            content: string;
+            variables: string;
+            selectedVars: string;
+            availableVars: string;
+            dragToReorder: string;
+            status: string;
+            phonePreview: string;
+            addTemplate: string;
+            editTemplate: string;
+            form: {
+              keyword: string;
+              language: string;
+              content: string;
             };
           };
         };
