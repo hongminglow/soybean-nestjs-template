@@ -7,6 +7,7 @@ import {
   MemoryHealthIndicator,
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 import {
   ApiKeyAuthSource,
@@ -116,7 +117,9 @@ export class AppController {
   }
 
   @Post('send-sms')
-  @Public()
+  @UseGuards(ThrottlerGuard)
+  // Allow 1 request per minute
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
   async sendSms(
     @Body()
     body: {
