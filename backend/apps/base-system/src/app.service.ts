@@ -95,4 +95,59 @@ export class AppService {
     });
     return redisInfo;
   }
+
+  async sendSms(payload: {
+    to: string;
+    text: string;
+    from?: string;
+    dataCoding?: number;
+    user: string;
+    pass: string;
+  }) {
+    const { to, text, from, dataCoding, user, pass } = payload;
+    const url = new URL('https://anchorsms.com:8443/mt/sendMtSmsNoToken');
+
+    url.searchParams.append('to', to);
+    url.searchParams.append('user', user);
+    url.searchParams.append('pass', pass);
+    url.searchParams.append('text', text);
+
+    if (from) {
+      url.searchParams.append('from', from);
+    }
+    if (dataCoding !== undefined) {
+      url.searchParams.append('dataCoding', dataCoding.toString());
+    }
+
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      // Parse the response based on the actual API return type.
+      // Often it's JSON, but sometimes plain text.
+      const contentType = response.headers.get('content-type');
+      let resultData;
+      if (contentType && contentType.includes('application/json')) {
+        resultData = await response.json();
+      } else {
+        resultData = await response.text();
+      }
+
+      return {
+        success: response.ok,
+        status: response.status,
+        data: resultData,
+      };
+    } catch (error: any) {
+      console.error('Fetch error details:', error, '\nCause:', error.cause);
+      throw new Error(
+        `Failed to send SMS: ${error.message}${error.cause ? ` (Cause: ${error.cause.message || error.cause})` : ''}`,
+      );
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
 import {
   DiskHealthIndicator,
   HealthCheck,
@@ -113,5 +113,22 @@ export class AppController {
   @UseGuards(ApiKeyGuard)
   async apiKeyAndSecret() {
     return this.appService.getHello();
+  }
+
+  @Post('send-sms')
+  @Public()
+  async sendSms(
+    @Body()
+    body: {
+      to: string;
+      text: string;
+      from?: string;
+      dataCoding?: number;
+      user: string;
+      pass: string;
+    },
+  ) {
+    const result = await this.appService.sendSms(body);
+    return ApiRes.success(result);
   }
 }
