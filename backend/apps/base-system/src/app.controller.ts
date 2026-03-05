@@ -7,11 +7,13 @@ import {
   MemoryHealthIndicator,
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
+import { Throttle } from '@nestjs/throttler';
 
 import {
   ApiKeyAuthSource,
   ApiKeyAuthStrategy,
 } from '@lib/constants/api-key.constant';
+import { AuthZGuard } from '@lib/infra/casbin';
 import { ApiKeyAuth } from '@lib/infra/decorators/api-key.decorator';
 import { BypassTransform } from '@lib/infra/decorators/bypass-transform.decorator';
 import { Public } from '@lib/infra/decorators/public.decorator';
@@ -116,7 +118,8 @@ export class AppController {
   }
 
   @Post('send-sms')
-  @Public()
+  @UseGuards(AuthZGuard)
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
   async sendSms(
     @Body()
     body: {
