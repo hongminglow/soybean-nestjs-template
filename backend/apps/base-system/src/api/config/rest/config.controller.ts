@@ -51,6 +51,7 @@ export class ConfigController {
 
     await this.configService.createConfig({
       configKey: dto.configKey,
+      configName: dto.configName,
       configValue: dto.configValue,
       status: dto.status,
       uid: user.uid,
@@ -72,6 +73,7 @@ export class ConfigController {
     await this.configService.updateConfig({
       id: dto.id,
       configKey: dto.configKey,
+      configName: dto.configName,
       configValue: dto.configValue,
       status: dto.status,
       uid: user.uid,

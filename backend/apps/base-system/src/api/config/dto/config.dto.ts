@@ -14,6 +14,11 @@ export class ConfigCreateDto {
   configValue!: string;
 
   @ApiProperty({ required: true })
+  @IsString({ message: 'configName must be a string' })
+  @IsNotEmpty({ message: 'configName cannot be empty' })
+  configName!: string;
+
+  @ApiProperty({ required: true })
   @IsEnum(Status, { message: 'Status must be a valid enum value' })
   status!: Status;
 }

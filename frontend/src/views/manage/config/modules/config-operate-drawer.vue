@@ -44,15 +44,17 @@ function createDefaultModel(): Config.ConfigModel {
   return {
     id: '',
     configKey: '',
+    configName: '',
     configValue: '',
     status: 'ENABLED'
   };
 }
 
-type RuleKey = Extract<keyof Config.ConfigModel, 'configKey' | 'configValue' | 'status'>;
+type RuleKey = Extract<keyof Config.ConfigModel, 'configKey' | 'configName' | 'configValue' | 'status'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
   configKey: defaultRequiredRule,
+  configName: defaultRequiredRule,
   configValue: defaultRequiredRule,
   status: defaultRequiredRule
 };
@@ -75,6 +77,7 @@ async function handleSubmit() {
   if (props.operateType === 'add') {
     const payload: Config.ConfigCreateModel = {
       configKey: model.configKey,
+      configName: model.configName,
       configValue: model.configValue,
       status: model.status
     };
@@ -108,6 +111,9 @@ watch(visible, () => {
       <NForm ref="formRef" :model="model" :rules="rules">
         <NFormItem :label="$t('page.manage.config.configKey')" path="configKey">
           <NInput v-model:value="model.configKey" :placeholder="$t('page.manage.config.form.configKey')" />
+        </NFormItem>
+        <NFormItem :label="$t('page.manage.config.configName')" path="configName">
+          <NInput v-model:value="model.configName" :placeholder="$t('page.manage.config.form.configName')" />
         </NFormItem>
         <NFormItem :label="$t('page.manage.config.configValue')" path="configValue">
           <NInput v-model:value="model.configValue" :placeholder="$t('page.manage.config.form.configValue')" />

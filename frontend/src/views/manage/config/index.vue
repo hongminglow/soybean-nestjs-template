@@ -48,6 +48,12 @@ const {
       minWidth: 180
     },
     {
+      key: 'configName',
+      title: $t('page.manage.config.configName'),
+      align: 'center',
+      minWidth: 180
+    },
+    {
       key: 'configValue',
       title: $t('page.manage.config.configValue'),
       align: 'center',
@@ -138,7 +144,7 @@ function edit(id: string) {
         :data="data"
         size="small"
         :flex-height="!appStore.isMobile"
-        :scroll-x="880"
+        :scroll-x="1060"
         :loading="loading"
         remote
         :row-key="row => row.id"

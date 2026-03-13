@@ -307,10 +307,12 @@ const local: App.I18n.Schema = {
       config: {
         title: 'System Config List',
         configKey: 'Config Key',
+        configName: 'Config Name',
         configValue: 'Config Value',
         configStatus: 'Status',
         form: {
           configKey: 'Please enter config key',
+          configName: 'Please enter config name',
           configValue: 'Please enter config value',
           configStatus: 'Please select status'
         },

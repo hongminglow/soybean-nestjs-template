@@ -543,10 +543,12 @@ declare namespace App {
           config: {
             title: string;
             configKey: string;
+            configName: string;
             configValue: string;
             configStatus: string;
             form: {
               configKey: string;
+              configName: string;
               configValue: string;
               configStatus: string;
             };

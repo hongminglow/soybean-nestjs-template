@@ -1,8 +1,33 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateEnum
 CREATE TYPE "Status" AS ENUM ('ENABLED', 'DISABLED', 'BANNED');
 
 -- CreateEnum
 CREATE TYPE "MenuType" AS ENUM ('directory', 'menu');
+
+-- CreateTable
+CREATE TABLE "sys_tokens" (
+    "id" TEXT NOT NULL,
+    "access_token" TEXT NOT NULL,
+    "refresh_token" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "domain" TEXT NOT NULL,
+    "login_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ip" TEXT NOT NULL,
+    "port" INTEGER,
+    "address" TEXT NOT NULL,
+    "user_agent" TEXT NOT NULL,
+    "request_id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT NOT NULL,
+
+    CONSTRAINT "sys_tokens_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "sys_user" (
@@ -189,6 +214,57 @@ CREATE TABLE "sys_role_menu" (
     CONSTRAINT "sys_role_menu_pkey" PRIMARY KEY ("role_id","menu_id","domain")
 );
 
+-- CreateTable
+CREATE TABLE "sys_access_key" (
+    "id" TEXT NOT NULL,
+    "domain" TEXT NOT NULL,
+    "access_key_id" TEXT NOT NULL,
+    "access_key_secret" TEXT NOT NULL,
+    "status" "Status" NOT NULL,
+    "description" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT NOT NULL,
+
+    CONSTRAINT "sys_access_key_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "sys_config" (
+    "id" TEXT NOT NULL,
+    "config_key" TEXT NOT NULL,
+    "config_name" TEXT NOT NULL,
+    "config_value" TEXT NOT NULL,
+    "status" "Status" NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT NOT NULL,
+    "updated_at" TIMESTAMP(3),
+    "updated_by" TEXT,
+
+    CONSTRAINT "sys_config_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "sys_test" (
+    "id" TEXT NOT NULL,
+    "test_code" TEXT NOT NULL,
+    "test_name" TEXT NOT NULL,
+    "description" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "meta" JSONB,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT NOT NULL,
+    "updated_at" TIMESTAMP(3),
+    "updated_by" TEXT,
+
+    CONSTRAINT "sys_test_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "sys_tokens_access_token_key" ON "sys_tokens"("access_token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "sys_tokens_refresh_token_key" ON "sys_tokens"("refresh_token");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "sys_user_username_key" ON "sys_user"("username");
 
@@ -209,3 +285,12 @@ CREATE UNIQUE INDEX "sys_organization_code_key" ON "sys_organization"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "sys_menu_route_name_key" ON "sys_menu"("route_name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "sys_access_key_access_key_id_key" ON "sys_access_key"("access_key_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "sys_access_key_access_key_secret_key" ON "sys_access_key"("access_key_secret");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "sys_test_test_code_key" ON "sys_test"("test_code");

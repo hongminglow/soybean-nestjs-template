@@ -307,10 +307,12 @@ const local: App.I18n.Schema = {
       config: {
         title: '系统配置列表',
         configKey: '配置键',
+        configName: '配置名称',
         configValue: '配置值',
         configStatus: '状态',
         form: {
           configKey: '请输入配置键',
+          configName: '请输入配置名称',
           configValue: '请输入配置值',
           configStatus: '请选择状态'
         },

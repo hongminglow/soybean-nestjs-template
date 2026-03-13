@@ -33,6 +33,7 @@ export class SystemConfigService {
         id: true,
         configKey: true,
         configValue: true,
+        configName: true,
         status: true,
         createdAt: true,
         createdBy: true,
@@ -49,6 +50,7 @@ export class SystemConfigService {
   async createConfig(data: {
     configKey: string;
     configValue: string;
+    configName: string;
     status: Status;
     uid: string;
   }): Promise<void> {
@@ -67,6 +69,7 @@ export class SystemConfigService {
         configKey: data.configKey,
         configValue: data.configValue,
         status: data.status,
+        configName: data.configName,
         createdAt: new Date(),
         createdBy: data.uid,
       },
@@ -77,6 +80,7 @@ export class SystemConfigService {
     id: string;
     configKey: string;
     configValue: string;
+    configName: string;
     status: Status;
     uid: string;
   }): Promise<void> {
@@ -105,6 +109,7 @@ export class SystemConfigService {
       where: { id: data.id },
       data: {
         configKey: data.configKey,
+        configName: data.configName,
         configValue: data.configValue,
         status: data.status,
         updatedAt: new Date(),

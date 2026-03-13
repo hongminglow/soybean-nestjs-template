@@ -108,6 +108,8 @@ declare namespace Env {
     readonly VITE_AUTOMATICALLY_DETECT_UPDATE?: CommonType.YesOrNo;
     /** show proxy url log in terminal */
     readonly VITE_PROXY_LOG?: CommonType.YesOrNo;
+    /** Whether to enable vite-plugin-vue-devtools (development only) */
+    readonly VITE_VUE_DEVTOOLS?: CommonType.YesOrNo;
   }
 }
 
