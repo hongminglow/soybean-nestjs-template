@@ -6,7 +6,7 @@
 
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-ARG NODE_VERSION=20.11.1
+ARG NODE_VERSION=22.14.0
 ARG PNPM_VERSION=9.1.2
 
 ################################################################################
@@ -39,7 +39,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store/soybean-admin/fronte
 FROM deps AS build
 
 # Run the build script.
-RUN pnpm run build
+RUN NODE_OPTIONS="--max-old-space-size=1536" pnpm run build
 
 ################################################################################
 # Production stage using Nginz to serve the static files
@@ -47,8 +47,8 @@ FROM nginx:stable-alpine AS final
 
 WORKDIR /usr/share/nginx/html
 
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo 'Asia/Shanghai' >/etc/timezone \
+RUN ln -sf /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime \
+    && echo 'Asia/Kuala_Lumpur' >/etc/timezone \
     && rm /etc/nginx/nginx.conf
 
 COPY nginx.conf /etc/nginx/nginx.conf
