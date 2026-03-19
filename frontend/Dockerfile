@@ -32,14 +32,14 @@ COPY . .
 # Leverage bind mounts to package.json and pnpm-lock.yaml to avoid having to copy them
 # into this layer.
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store/soybean-admin/frontend \
-    NODE_OPTIONS="--max-old-space-size=1024" pnpm install
+    pnpm install
 
 ################################################################################
 # Create a stage for building the application.
 FROM deps AS build
 
 # Run the build script.
-RUN NODE_OPTIONS="--max-old-space-size=1536" pnpm run build
+RUN pnpm run build
 
 ################################################################################
 # Production stage using Nginz to serve the static files
