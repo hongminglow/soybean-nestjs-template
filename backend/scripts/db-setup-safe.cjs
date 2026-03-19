@@ -20,8 +20,14 @@ function runCapture(command, args) {
 }
 
 function getPendingMigrations(output) {
-  const marker = 'Following migrations have not yet been applied:';
-  const markerIndex = output.indexOf(marker);
+  let marker = 'Following migrations have not yet been applied:';
+  let markerIndex = output.indexOf(marker);
+  
+  if (markerIndex === -1) {
+    marker = 'Following migration have not yet been applied:';
+    markerIndex = output.indexOf(marker);
+  }
+  
   if (markerIndex === -1) return [];
 
   const section = output.slice(markerIndex + marker.length);
