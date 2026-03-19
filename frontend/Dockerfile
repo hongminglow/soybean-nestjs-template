@@ -32,7 +32,7 @@ COPY . .
 # Leverage bind mounts to package.json and pnpm-lock.yaml to avoid having to copy them
 # into this layer.
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store/soybean-admin/frontend \
-    pnpm install
+    NODE_OPTIONS="--max-old-space-size=1024" pnpm install
 
 ################################################################################
 # Create a stage for building the application.
