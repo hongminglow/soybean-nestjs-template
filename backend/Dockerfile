@@ -74,6 +74,8 @@ COPY package.json .
 # the built application from the build stage into the image.
 COPY --from=build /usr/src/app/soybean/backend/node_modules ./node_modules
 COPY --from=build /usr/src/app/soybean/backend/dist ./dist
+COPY --from=build /usr/src/app/soybean/backend/prisma ./prisma
+COPY --from=build /usr/src/app/soybean/backend/apps/base-system/src/resources/model.conf ./model.conf
 COPY ./ecosystem.config.js ./ecosystem.config.js
 
 

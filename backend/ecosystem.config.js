@@ -4,7 +4,7 @@ module.exports = {
       name: 'soybean-admin-nest-backend',
       script: './dist/apps/base-system/src/main.js',
       autorestart: true,
-      instances: -1,
+      instances: 1,
       exec_mode: 'cluster',
       watch: false,
       max_memory_restart: '1G',
