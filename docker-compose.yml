@@ -10,11 +10,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: >
-      sh -c "
-        pnpm prisma migrate deploy &&
-        pnpm prisma db seed
-      "
+    command: pnpm run db:setup
     networks:
       - soybean-admin
 
