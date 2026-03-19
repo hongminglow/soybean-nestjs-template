@@ -39,7 +39,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store/soybean-admin/fronte
 FROM deps AS build
 
 # Run the build script.
-RUN pnpm run build
+RUN NODE_OPTIONS="--max-old-space-size=1536" pnpm run build
 
 ################################################################################
 # Production stage using Nginz to serve the static files
